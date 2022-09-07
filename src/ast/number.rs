@@ -123,18 +123,18 @@ impl AwkNumber {
         }
     }
     fn float(value: f64) -> AwkNumber {
-        if value == value as i64 as f64 {
-            return AwkNumber {
+        return if value == value as i64 as f64 {
+            AwkNumber {
                 int: value as i64,
                 float: 0.0,
                 is_float: false,
-            };
+            }
         } else {
-            return AwkNumber {
+            AwkNumber {
                 int: 0,
                 float: value,
                 is_float: true,
-            };
+            }
         }
     }
 }
