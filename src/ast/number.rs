@@ -1,7 +1,4 @@
-use std::{
-    num::{ParseFloatError, ParseIntError},
-    ops::Not,
-};
+use std::num::{ParseFloatError, ParseIntError};
 
 use nom::{
     branch::{alt, permutation},
@@ -107,120 +104,113 @@ fn test_parse_int() {
     assert!(parse_int("1.0").is_err());
 }
 
-#[derive(Debug)]
-pub struct AwkNumber {
+#[derive(Debug, PartialEq)]
+pub struct AWKNUMBER {
     int: i64,
     float: f64,
     is_float: bool,
 }
 
-impl AwkNumber {
-    fn int(value: i64) -> AwkNumber {
-        AwkNumber {
+impl AWKNUMBER {
+    fn int(value: i64) -> AWKNUMBER {
+        AWKNUMBER {
             int: value,
             float: 0.0,
             is_float: false,
         }
     }
-    fn float(value: f64) -> AwkNumber {
+    fn float(value: f64) -> AWKNUMBER {
         return if value == value as i64 as f64 {
-            AwkNumber {
+            AWKNUMBER {
                 int: value as i64,
                 float: 0.0,
                 is_float: false,
             }
         } else {
-            AwkNumber {
+            AWKNUMBER {
                 int: 0,
                 float: value,
                 is_float: true,
             }
-        }
+        };
     }
 }
 
 #[test]
 fn test_awk_number() {
     assert!({
-        let n = AwkNumber::int(1);
+        let n = AWKNUMBER::int(1);
         n.is_float == false && n.int == 1
     });
     assert!({
-        let n = AwkNumber::float(1.0);
+        let n = AWKNUMBER::float(1.0);
         n.is_float == false && n.int == 1
     });
     assert!({
-        let n = AwkNumber::float(1.4);
+        let n = AWKNUMBER::float(1.4);
         n.is_float == true && n.float == 1.4
     });
     assert!({
-        let n = AwkNumber::float(1e40);
+        let n = AWKNUMBER::float(1e40);
         n.is_float == true && n.float == 1e40
     });
 }
 
-fn parse(input: &str) -> IResult<&str, AwkNumber> {
+fn parse_number(input: &str) -> IResult<&str, AWKNUMBER> {
     alt((
         map_res(
-            permutation((
-                parse_float,
-                opt(parse_e)
-            )),
-            |(val, e): (f64, Option<i64>)| -> Result<AwkNumber, ()> {
+            permutation((parse_float, opt(parse_e))),
+            |(val, e): (f64, Option<i64>)| -> Result<AWKNUMBER, ()> {
                 let e: f64 = 10f64.powf(e.unwrap_or(0) as f64);
-                Ok(AwkNumber::float(val * e))
-            }
+                Ok(AWKNUMBER::float(val * e))
+            },
         ),
         map_res(
-            permutation((
-                parse_int,
-                opt(parse_e)
-            )),
-            |(val, e): (i64, Option<i64>)| -> Result<AwkNumber, ()> {
+            permutation((parse_int, opt(parse_e))),
+            |(val, e): (i64, Option<i64>)| -> Result<AWKNUMBER, ()> {
                 let e: f64 = 10f64.powf(e.unwrap_or(0) as f64);
                 return if e == 1.0 {
-                    Ok(AwkNumber::int(val))
+                    Ok(AWKNUMBER::int(val))
                 } else {
-                    Ok(AwkNumber::float(val as f64 * e))
+                    Ok(AWKNUMBER::float(val as f64 * e))
                 };
-            }
-        )
+            },
+        ),
     ))(input)
 }
 
 #[test]
 fn test_parse() {
     assert!({
-        let n = parse("-1.").unwrap().1;
+        let n = parse_number("-1.").unwrap().1;
         !n.is_float && n.int == -1
     });
     assert!({
-        let n = parse(".1").unwrap().1;
+        let n = parse_number(".1").unwrap().1;
         n.is_float && n.float == 0.1
     });
     assert!({
-        let n = parse("-1.0").unwrap().1;
+        let n = parse_number("-1.0").unwrap().1;
         !n.is_float && n.int == -1
     });
     assert!({
-        let n = parse("-1.2").unwrap().1;
+        let n = parse_number("-1.2").unwrap().1;
         n.is_float && n.float == -1.2
     });
     assert!({
-        let n = parse("-1.2e1").unwrap().1;
+        let n = parse_number("-1.2e1").unwrap().1;
         !n.is_float && n.int == -12
     });
     assert!({
-        let n = parse("1.0e-1").unwrap().1;
+        let n = parse_number("1.0e-1").unwrap().1;
         n.is_float && n.float == 1.0e-1
     });
     assert!({
-        let n = parse("1.0e-10").unwrap().1;
+        let n = parse_number("1.0e-10").unwrap().1;
         n.is_float && n.float == 1.0e-10
     });
     assert!({
-        let n = parse("0.1e2").unwrap().1;
+        let n = parse_number("0.1e2").unwrap().1;
         !n.is_float && n.int == 10
     });
 }
-
