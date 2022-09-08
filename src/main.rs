@@ -1,4 +1,4 @@
-use std::io::{self, Error};
+use std::io::{self};
 
 mod ast;
 
@@ -15,6 +15,15 @@ impl AWKFields {
     fn nf(&self) -> usize {
         self.fields.len()
     }
+    fn get_field(&self, n: usize) -> Result<String, ()> {
+        if n == 0 {
+            Ok(self.fields.join(" "))
+        } else if (1 <= n) && (n <= self.nf()) {
+            Ok(self.fields[n - 1].clone())
+        } else {
+            Err(())
+        }
+    }
 }
 
 fn mainloop() {
@@ -28,8 +37,10 @@ fn mainloop() {
             let fields = AWKFields {
                 fields: line.trim().split(" ").map(|f| f.to_string()).collect(),
             };
-            dbg!(fields.nf());
-            dbg!(&fields);
+            let nf = fields.nf();
+            for f in 0..=nf {
+                println!("${}: {}", f, fields.get_field(f).unwrap_or("".to_string()));
+            }
         } else {
             break;
         }
