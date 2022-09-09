@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::num::{ParseFloatError, ParseIntError};
 
 use nom::{

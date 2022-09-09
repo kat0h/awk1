@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use nom::{
     branch::alt,
     bytes::complete::escaped_transform,
