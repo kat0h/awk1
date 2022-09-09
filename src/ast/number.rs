@@ -1,4 +1,12 @@
+/* 
+ * file: number.rs
+ * author: kota kato 2020
+ * description:
+ *   Parse number literal
+ */
+
 #![allow(dead_code)]
+
 
 use std::num::{ParseFloatError, ParseIntError};
 

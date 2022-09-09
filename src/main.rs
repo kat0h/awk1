@@ -1,3 +1,10 @@
+/* 
+ * file: main.rs
+ * author: kota kato 2020
+ * description:
+ *   main source code of rusty_awk
+ */
+
 use std::io::{self};
 
 mod ast;

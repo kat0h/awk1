@@ -1,3 +1,9 @@
+/* 
+ * file: paction.rs
+ * author: kota kato 2020
+ * description:
+ *   Parse awk program that is composed pattern and action statement
+ */
 
 /*
  * Action

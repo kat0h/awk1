@@ -1,3 +1,10 @@
+/* 
+ * file: string.rs
+ * author: kota kato 2020
+ * description:
+ *   Parse string literal that is delimited by " character
+ */
+
 #![allow(dead_code)]
 
 use nom::{
