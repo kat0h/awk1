@@ -27,6 +27,21 @@ impl AWKFields {
 }
 
 fn mainloop() {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() == 1 {
+        println!("usage: awk [-F fs] [-v var=value] [-f progfile | 'prog'] [file ...]");
+        return;
+    }
+
+    let parsed_program = ast::paction::parse_paction(&args[1]);
+    if parsed_program.is_err() {
+        println!("Parse Err!!!");
+        dbg!(&parsed_program);
+        return;
+    }
+    let program = parsed_program.unwrap();
+    dbg!(&program);
+
     loop {
         let mut line = String::new();
         if io::stdin()
@@ -35,7 +50,11 @@ fn mainloop() {
             != 0
         {
             let fields = AWKFields {
-                fields: line.trim().split(" ").map(|f| f.to_string()).collect(),
+                fields: line
+                    .trim()
+                    .split_whitespace()
+                    .map(|f| f.to_string())
+                    .collect(),
             };
             let nf = fields.nf();
             for f in 0..=nf {
