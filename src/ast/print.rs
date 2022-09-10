@@ -1,5 +1,5 @@
 use nom::{
-    branch::permutation,
+    branch::{alt, permutation},
     bytes::complete::tag,
     character::complete::char,
     combinator::{map, opt},
@@ -40,7 +40,10 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
     let (input, (_, exprlist)) = permutation((
         tag("print"),
         map(
-            opt(delimited(char('('), parse_print_expr_list, char(')'))),
+            opt(alt((
+                delimited(char('('), parse_print_expr_list, char(')')),
+                parse_print_expr_list,
+            ))),
             |expr: Option<Vec<AWKNonUnaryPrintExpr>>| -> Vec<AWKNonUnaryPrintExpr> {
                 match expr {
                     Some(expr) => expr,
@@ -73,6 +76,15 @@ fn test_parse_print() {
             }
         )),
         parse_print("print(123,\"456\")")
+    );
+    assert_eq!(
+        Ok((
+            "",
+            AWKPrint {
+                exprlist: parse_print_expr_list("123,\"456\"").unwrap().1
+            }
+        )),
+        parse_print("print123,\"456\"")
     );
     assert_eq!(
         Ok(("", AWKPrint { exprlist: vec![] })),
