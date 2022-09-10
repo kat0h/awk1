@@ -1,6 +1,6 @@
 /*
  * file: ast.rs
- * author: kota kato 2020
+ * author: kota kato 2022
  * description:
  *   make ast/ public
  */

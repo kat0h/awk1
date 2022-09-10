@@ -1,3 +1,11 @@
+/*
+ * file: print_expr.rs
+ * author: kota kato 2022
+ * description:
+ *  parser for expr of print statement
+ */
+
+
 #![allow(dead_code)]
 
 use crate::ast::def::{AWKNonUnaryPrintExpr, AWKNumber, AWKString};

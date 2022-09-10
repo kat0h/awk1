@@ -1,3 +1,10 @@
+/*
+ * file: number.rs
+ * author: kota kato 2022
+ * description:
+ *   Parse number literal
+ */
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKNonUnaryPrintExpr {
     AWKNumber(AWKNumber),

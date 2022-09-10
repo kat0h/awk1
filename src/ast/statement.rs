@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 /*
  * file: statement.rs
- * author: kota kato 2020
+ * author: kota kato 2022
  * description:
  *   Parse awk statemtn e.g.
  *     - print $1 $20

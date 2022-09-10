@@ -1,6 +1,6 @@
 /*
- * file: paction.rs
- * author: kota kato 2020
+ * file: patternaction.rs
+ * author: kota kato 2022
  * description:
  *   Parse awk program that is composed pattern and action statement
  */

@@ -1,3 +1,10 @@
+/*
+ * file: print.rs
+ * author: kota kato 2022
+ * description:
+ *   print statement
+ */
+
 use nom::{
     branch::{alt, permutation},
     bytes::complete::tag,

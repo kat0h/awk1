@@ -1,6 +1,6 @@
 /*
  * file: main.rs
- * author: kota kato 2020
+ * author: kota kato 2022
  * description:
  *   main source code of rusty_awk
  */

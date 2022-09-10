@@ -1,6 +1,6 @@
 /*
  * file: number.rs
- * author: kota kato 2020
+ * author: kota kato 2022
  * description:
  *   Parse number literal
  */
