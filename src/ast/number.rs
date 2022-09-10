@@ -195,4 +195,8 @@ fn test_parse() {
         let n = parse_number("2.2250738585072013e-308").unwrap().1;
         n.is_float && n.float == 2.2250738585072013e-308
     });
+    assert!({
+        let (i, n) = parse_number("2,").unwrap();
+        !n.is_float && n.int == 2 && i == ","
+    });
 }
