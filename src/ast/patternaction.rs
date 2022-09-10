@@ -1,4 +1,4 @@
-/* 
+/*
  * file: paction.rs
  * author: kota kato 2020
  * description:
@@ -13,26 +13,21 @@
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{char, multispace0},
+    character::complete::char,
     combinator::{map, opt},
     sequence::delimited,
     IResult,
 };
 
-use crate::ast::def::{
-    AWKPattern,
-    AWKAction,
-    AWKPatternAction,
+use crate::ast::{
+    def::{AWKAction, AWKPattern, AWKPatternAction, AWKPrint},
+    print::parse_print,
 };
 
 // BEGIN / END / nothing
 pub fn parse_paction(input: &str) -> IResult<&str, AWKPatternAction> {
     let (input, pattern) = map(
-        delimited(
-            multispace0,
-            opt(alt((tag("BEGIN"), tag("END")))),
-            multispace0,
-        ),
+        opt(alt((tag("BEGIN"), tag("END")))),
         |pattern: Option<&str>| -> AWKPattern {
             match pattern {
                 Some("BEGIN") => AWKPattern::BEGIN,
@@ -41,45 +36,28 @@ pub fn parse_paction(input: &str) -> IResult<&str, AWKPatternAction> {
             }
         },
     )(input)?;
+    // parse action
     let (input, action) = map(
-        delimited(
-            char('{'),
-            delimited(multispace0, tag("print"), multispace0),
-            char('}'),
-        ),
-        |action: &str| -> AWKAction {
-            AWKAction {
-                statement: action.to_string(),
-            }
-        },
+        delimited(char('{'), parse_print, char('}')),
+        |action: AWKPrint| -> AWKAction { AWKAction { statement: action } },
     )(input)?;
     return Ok((input, AWKPatternAction { pattern, action }));
 }
 
 #[test]
-fn test_parse_string() {
+fn test_parse_patternaction() {
     assert_eq!(
         Ok((
             "",
             AWKPatternAction {
                 pattern: AWKPattern::BEGIN,
                 action: AWKAction {
-                    statement: "print".to_string()
+                    statement: AWKPrint {
+                        expr: crate::ast::expr::parse_expr("132").unwrap().1
+                    }
                 }
             }
         )),
-        parse_paction("        BEGIN { print        }")
-    );
-    assert_eq!(
-        Ok((
-            "",
-            AWKPatternAction {
-                pattern: AWKPattern::Always,
-                action: AWKAction {
-                    statement: "print".to_string()
-                }
-            }
-        )),
-        parse_paction("     { print        }")
+        parse_paction("BEGIN{print 132}")
     );
 }

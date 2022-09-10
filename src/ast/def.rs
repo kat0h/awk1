@@ -1,6 +1,7 @@
+#[derive(Debug, PartialEq)]
 pub enum AWKExpr {
     AWKNumber(AWKNumber),
-    AWKString(AWKString)
+    AWKString(AWKString),
 }
 
 #[derive(Debug, PartialEq)]
@@ -17,7 +18,7 @@ pub enum AWKPattern {
 
 #[derive(Debug, PartialEq)]
 pub struct AWKAction {
-    pub statement: String,
+    pub statement: AWKPrint,
 }
 
 #[derive(Debug, PartialEq)]
@@ -56,4 +57,10 @@ impl AWKNumber {
             }
         };
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct AWKPrint {
+    // 一時的に
+    pub expr: AWKExpr,
 }
