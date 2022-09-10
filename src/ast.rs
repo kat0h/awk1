@@ -7,4 +7,21 @@
 
 pub mod number;
 pub mod string;
-pub mod paction;
+pub mod patternaction;
+pub mod expr;
+pub mod statement;
+pub mod def;
+
+
+/* 
+ * Expr : AWKNUMBER | AWKSTRING
+ */
+
+/*
+ *  paction : pattern '{' action '}'
+ *  pattern : BEGIN
+ *          | END
+ *          |
+ *  action  : print '(' expr ')'
+ *          | print expr
+*/

@@ -5,7 +5,11 @@
  *   main source code of rusty_awk
  */
 
-use std::io::{self};
+// TODO
+//
+// awk '{print $2 $1}'
+
+use std::io;
 
 mod ast;
 
@@ -40,7 +44,7 @@ fn mainloop() {
         return;
     }
 
-    let parsed_program = ast::paction::parse_paction(&args[1]);
+    let parsed_program = ast::patternaction::parse_paction(&args[1]);
     if parsed_program.is_err() {
         println!("Parse Err!!!");
         dbg!(&parsed_program);

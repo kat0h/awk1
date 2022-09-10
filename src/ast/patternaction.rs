@@ -19,26 +19,14 @@ use nom::{
     IResult,
 };
 
-#[derive(Debug, PartialEq)]
-pub enum AWKPattern {
-    BEGIN,
-    END,
-    Always,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct AWKAction {
-    statement: String,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct AWKPAction {
-    pattern: AWKPattern,
-    action: AWKAction,
-}
+use crate::ast::def::{
+    AWKPattern,
+    AWKAction,
+    AWKPatternAction,
+};
 
 // BEGIN / END / nothing
-pub fn parse_paction(input: &str) -> IResult<&str, AWKPAction> {
+pub fn parse_paction(input: &str) -> IResult<&str, AWKPatternAction> {
     let (input, pattern) = map(
         delimited(
             multispace0,
@@ -65,7 +53,7 @@ pub fn parse_paction(input: &str) -> IResult<&str, AWKPAction> {
             }
         },
     )(input)?;
-    return Ok((input, AWKPAction { pattern, action }));
+    return Ok((input, AWKPatternAction { pattern, action }));
 }
 
 #[test]
@@ -73,7 +61,7 @@ fn test_parse_string() {
     assert_eq!(
         Ok((
             "",
-            AWKPAction {
+            AWKPatternAction {
                 pattern: AWKPattern::BEGIN,
                 action: AWKAction {
                     statement: "print".to_string()
@@ -85,7 +73,7 @@ fn test_parse_string() {
     assert_eq!(
         Ok((
             "",
-            AWKPAction {
+            AWKPatternAction {
                 pattern: AWKPattern::Always,
                 action: AWKAction {
                     statement: "print".to_string()

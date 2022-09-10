@@ -7,6 +7,8 @@
 
 #![allow(dead_code)]
 
+use crate::ast::def::AWKString;
+
 use nom::{
     branch::alt,
     bytes::complete::escaped_transform,
@@ -16,12 +18,7 @@ use nom::{
     IResult,
 };
 
-#[derive(Debug, PartialEq)]
-pub struct AWKSTRING {
-    value: String,
-}
-
-pub fn parse_string(input: &str) -> IResult<&str, AWKSTRING> {
+pub fn parse_string(input: &str) -> IResult<&str, AWKString> {
     map(
         delimited(
             char('\"'),
@@ -42,14 +39,14 @@ pub fn parse_string(input: &str) -> IResult<&str, AWKSTRING> {
             ),
             char('\"'),
         ),
-        |str: String| -> AWKSTRING { AWKSTRING { value: str.clone() } },
+        |str: String| -> AWKString { AWKString { value: str.clone() } },
     )(input)
 }
 
 #[test]
 fn test_parse_string() {
     assert_eq!(
-        Ok(("", AWKSTRING { value: "TEST \n \"THE\" \\ World!!!".to_string() })),
+        Ok(("", AWKString { value: "TEST \n \"THE\" \\ World!!!".to_string() })),
         parse_string("\"TEST \\n \\\"THE\\\" \\\\ World!!!\"")
     )
 }
