@@ -1,4 +1,4 @@
-/* 
+/*
  * file: main.rs
  * author: kota kato 2020
  * description:

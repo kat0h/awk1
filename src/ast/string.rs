@@ -1,4 +1,4 @@
-/* 
+/*
  * file: string.rs
  * author: kota kato 2020
  * description:
@@ -46,7 +46,12 @@ pub fn parse_string(input: &str) -> IResult<&str, AWKString> {
 #[test]
 fn test_parse_string() {
     assert_eq!(
-        Ok(("", AWKString { value: "TEST \n \"THE\" \\ World!!!".to_string() })),
+        Ok((
+            "",
+            AWKString {
+                value: "TEST \n \"THE\" \\ World!!!".to_string()
+            }
+        )),
         parse_string("\"TEST \\n \\\"THE\\\" \\\\ World!!!\"")
     )
 }

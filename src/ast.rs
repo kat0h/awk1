@@ -1,19 +1,18 @@
-/* 
+/*
  * file: ast.rs
  * author: kota kato 2020
  * description:
  *   make ast/ public
  */
 
-pub mod number;
-pub mod string;
-pub mod patternaction;
-pub mod expr;
-pub mod statement;
 pub mod def;
+pub mod expr;
+pub mod number;
+pub mod patternaction;
+pub mod statement;
+pub mod string;
 
-
-/* 
+/*
  * Expr : AWKNUMBER | AWKSTRING
  */
 
