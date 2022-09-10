@@ -8,20 +8,20 @@ use nom::{
     IResult,
 };
 
-use crate::ast::{def::AWKPrint, expr::parse_expr};
+use crate::ast::{def::AWKPrint, print_expr::parse_non_unary_print_expr};
 
-use super::def::AWKExpr;
+use super::def::AWKNonUnaryPrintExpr;
 
-fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<AWKExpr>> {
+fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<AWKNonUnaryPrintExpr>> {
     map(
         permutation((
-            parse_expr,
+            parse_non_unary_print_expr,
             many0(map(
-                permutation((char(','), parse_expr)),
-                |(_, expr): (char, AWKExpr)| -> AWKExpr { expr },
+                permutation((char(','), parse_non_unary_print_expr)),
+                |(_, expr): (char, AWKNonUnaryPrintExpr)| -> AWKNonUnaryPrintExpr { expr },
             )),
         )),
-        |(expr, exprs): (AWKExpr, Vec<AWKExpr>)| -> Vec<AWKExpr> {
+        |(expr, exprs): (AWKNonUnaryPrintExpr, Vec<AWKNonUnaryPrintExpr>)| -> Vec<AWKNonUnaryPrintExpr> {
             let mut exprlist = vec![expr];
             for e in exprs.iter() {
                 // ここのcloneを消す
@@ -41,7 +41,7 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
         tag("print"),
         map(
             opt(delimited(char('('), parse_print_expr_list, char(')'))),
-            |expr: Option<Vec<AWKExpr>>| -> Vec<AWKExpr> {
+            |expr: Option<Vec<AWKNonUnaryPrintExpr>>| -> Vec<AWKNonUnaryPrintExpr> {
                 match expr {
                     Some(expr) => expr,
                     None => vec![],
@@ -56,8 +56,8 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
 #[test]
 fn test_parse_print_expr_list() {
     let e = vec![
-        parse_expr("123").unwrap().1,
-        parse_expr("\"hoge\"").unwrap().1,
+        parse_non_unary_print_expr("123").unwrap().1,
+        parse_non_unary_print_expr("\"hoge\"").unwrap().1,
     ];
     let a = parse_print_expr_list("123,\"hoge\"").unwrap().1;
     assert_eq!(e, a);
@@ -66,21 +66,20 @@ fn test_parse_print_expr_list() {
 #[test]
 fn test_parse_print() {
     assert_eq!(
-        Ok(("", AWKPrint {
-            exprlist: parse_print_expr_list("123,\"456\"").unwrap().1
-        })),
+        Ok((
+            "",
+            AWKPrint {
+                exprlist: parse_print_expr_list("123,\"456\"").unwrap().1
+            }
+        )),
         parse_print("print(123,\"456\")")
     );
     assert_eq!(
-        Ok(("", AWKPrint {
-            exprlist: vec![]
-        })),
+        Ok(("", AWKPrint { exprlist: vec![] })),
         parse_print("print")
     );
     assert_eq!(
-        Ok(("()", AWKPrint {
-            exprlist: vec![]
-        })),
+        Ok(("()", AWKPrint { exprlist: vec![] })),
         parse_print("print()")
     );
 }

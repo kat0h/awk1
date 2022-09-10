@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq, Clone)]
-pub enum AWKExpr {
+pub enum AWKNonUnaryPrintExpr {
     AWKNumber(AWKNumber),
     AWKString(AWKString),
 }
@@ -62,5 +62,5 @@ impl AWKNumber {
 #[derive(Debug, PartialEq)]
 pub struct AWKPrint {
     // 一時的に
-    pub exprlist: Vec<AWKExpr>,
+    pub exprlist: Vec<AWKNonUnaryPrintExpr>,
 }

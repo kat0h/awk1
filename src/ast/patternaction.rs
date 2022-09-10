@@ -53,7 +53,11 @@ fn test_parse_patternaction() {
                 pattern: AWKPattern::BEGIN,
                 action: AWKAction {
                     statement: AWKPrint {
-                        exprlist: vec![crate::ast::expr::parse_expr("132").unwrap().1]
+                        exprlist: vec![
+                            crate::ast::print_expr::parse_non_unary_print_expr("132")
+                                .unwrap()
+                                .1
+                        ]
                     }
                 }
             }
