@@ -9,9 +9,9 @@ pub mod def;
 pub mod expr;
 pub mod number;
 pub mod patternaction;
+pub mod print;
 pub mod statement;
 pub mod string;
-pub mod print;
 
 /*
  * Expr : AWKNUMBER | AWKSTRING
