@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 /*
  * file: print.rs
  * author: kota kato 2022
@@ -16,35 +15,12 @@ use nom::{
     IResult,
 };
 
-use crate::ast::{def::AWKPrint, print_expr::parse_non_unary_print_expr};
+use crate::ast::{def::AWKPrint};
 
-use super::def::AWKNonUnaryPrintExpr;
 
-fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<AWKNonUnaryPrintExpr>> {
-    map(
-        permutation((
-            parse_non_unary_print_expr,
-            many0(map(
-                permutation((char(','), parse_non_unary_print_expr)),
-                |(_, expr): (char, AWKNonUnaryPrintExpr)| -> AWKNonUnaryPrintExpr { expr },
-            )),
-        )),
-        |(expr, exprs): (AWKNonUnaryPrintExpr, Vec<AWKNonUnaryPrintExpr>)| -> Vec<AWKNonUnaryPrintExpr> {
-            let mut exprlist = vec![expr];
-            for e in exprs.iter() {
-                // ここのcloneを消す
-                exprlist.push(e.clone());
-            }
-            exprlist
-        },
-    )(input)
-}
-
-// fn parse_multiple_expr_list(input: &str) -> IResult<&str, ()> {}
-
+/*
 // simple_print_statement
 pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
-    // print(Expr,Expr,Expr)
     let (input, (_, exprlist)) = permutation((
         tag("print"),
         map(
@@ -63,7 +39,15 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
 
     Ok((input, AWKPrint { exprlist }))
 }
+*/
 
+/*
+fn parse_print_expr_list(input: &str) -> IResult<&str, AWKPrint> {
+   separated_list0(char(','), )(input)
+}
+*/
+
+/*
 #[test]
 fn test_parse_print_expr_list() {
     let e = vec![
@@ -103,3 +87,4 @@ fn test_parse_print() {
         parse_print("print()")
     );
 }
+*/
