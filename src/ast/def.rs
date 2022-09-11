@@ -1,9 +1,37 @@
 /*
- * file: number.rs
+ * file: def.rs
  * author: kota kato 2022
  * description:
- *   Parse number literal
+ *   definition ast nodes
+ *   https://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html
  */
+
+// AWKProgram is item_list separatedd by terminator (; or \n)
+#[derive(Debug, PartialEq)]
+pub struct AWKProgram {
+    pub item_list: Vec<AWKItem>,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AWKItem {
+    AWKPatternAction(AWKPatternAction),
+}
+
+#[derive(Debug, PartialEq)]
+pub struct AWKPatternAction {
+    pub pattern: AWKPattern,
+    pub action: AWKAction,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AWKPattern {
+    Always,
+    Begin,
+    End,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct AWKAction {}
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKNonUnaryPrintExpr {
@@ -14,24 +42,6 @@ pub enum AWKNonUnaryPrintExpr {
 #[derive(Debug, PartialEq, Clone)]
 pub struct AWKString {
     pub value: String,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum AWKPattern {
-    BEGIN,
-    END,
-    Always,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct AWKAction {
-    pub statement: AWKPrint,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct AWKPatternAction {
-    pub pattern: AWKPattern,
-    pub action: AWKAction,
 }
 
 #[derive(Debug, PartialEq, Clone)]

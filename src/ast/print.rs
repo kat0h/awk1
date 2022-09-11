@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 /*
  * file: print.rs
  * author: kota kato 2022

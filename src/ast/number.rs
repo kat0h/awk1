@@ -158,7 +158,7 @@ fn test_parse_int() {
 }
 
 #[test]
-fn test_parse() {
+fn test_parse_number() {
     assert!({
         let n = parse_number("-1.").unwrap().1;
         !n.is_float && n.int == -1

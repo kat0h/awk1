@@ -44,7 +44,7 @@ fn mainloop() {
         return;
     }
 
-    let parsed_program = ast::patternaction::parse_paction(&args[1]);
+    let parsed_program = ast::program::parse_program(&args[1]);
     if parsed_program.is_err() {
         println!("Parse Err!!!");
         dbg!(&parsed_program);
