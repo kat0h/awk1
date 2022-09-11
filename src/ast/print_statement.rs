@@ -15,8 +15,7 @@ use nom::{
     IResult,
 };
 
-use crate::ast::{def::AWKPrint};
-
+use crate::ast::def::AWKPrint;
 
 /*
 // simple_print_statement

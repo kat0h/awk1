@@ -16,7 +16,7 @@ pub fn parse_expr(input: &str) -> IResult<&str, AWKExpr> {
         }),
         map(parse_string, |s: AWKString| -> AWKExpr {
             AWKExpr::AWKString(s)
-        })
+        }),
     ))(input)
 }
 
