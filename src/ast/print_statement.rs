@@ -10,14 +10,15 @@ use nom::{
     bytes::complete::tag,
     character::complete::char,
     combinator::{map, opt},
-    multi::many0,
+    multi::separated_list1,
     sequence::delimited,
     IResult,
 };
 
-use crate::ast::def::AWKPrint;
+use crate::ast::{def::AWKPrint, expr::parse_expr};
 
-/*
+use super::def::AWKExpr;
+
 // simple_print_statement
 pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
     let (input, (_, exprlist)) = permutation((
@@ -27,7 +28,7 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
                 delimited(char('('), parse_print_expr_list, char(')')),
                 parse_print_expr_list,
             ))),
-            |expr: Option<Vec<AWKNonUnaryPrintExpr>>| -> Vec<AWKNonUnaryPrintExpr> {
+            |expr: Option<Vec<AWKExpr>>| -> Vec<AWKExpr> {
                 match expr {
                     Some(expr) => expr,
                     None => vec![],
@@ -38,20 +39,16 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
 
     Ok((input, AWKPrint { exprlist }))
 }
-*/
 
-/*
-fn parse_print_expr_list(input: &str) -> IResult<&str, AWKPrint> {
-   separated_list0(char(','), )(input)
+fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<AWKExpr>> {
+    separated_list1(char(','), parse_expr)(input)
 }
-*/
 
-/*
 #[test]
 fn test_parse_print_expr_list() {
     let e = vec![
-        parse_non_unary_print_expr("123").unwrap().1,
-        parse_non_unary_print_expr("\"hoge\"").unwrap().1,
+        parse_expr("123").unwrap().1,
+        parse_expr("\"hoge\"").unwrap().1,
     ];
     let a = parse_print_expr_list("123,\"hoge\"").unwrap().1;
     assert_eq!(e, a);
@@ -86,4 +83,3 @@ fn test_parse_print() {
         parse_print("print()")
     );
 }
-*/
