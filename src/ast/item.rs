@@ -14,7 +14,7 @@ use nom::{
     IResult,
 };
 
-use crate::ast::def::{AWKAction, AWKItem, AWKPattern, AWKPatternAction};
+use crate::ast::def::{AWKItem, AWKPattern, AWKPatternAction, AWKStatement};
 
 /*
  * action
@@ -23,7 +23,7 @@ use crate::ast::def::{AWKAction, AWKItem, AWKPattern, AWKPatternAction};
  */
 pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
     alt((
-        map(parse_action, |action: AWKAction| {
+        map(parse_action, |action: Vec<AWKStatement>| {
             AWKItem::AWKPatternAction(AWKPatternAction {
                 pattern: AWKPattern::Always,
                 action,
@@ -31,16 +31,16 @@ pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
         }),
         map(
             permutation((parse_pattern, parse_action)),
-            |(pattern, action): (AWKPattern, AWKAction)| {
+            |(pattern, action): (AWKPattern, Vec<AWKStatement>)| {
                 AWKItem::AWKPatternAction(AWKPatternAction { pattern, action })
             },
         ),
     ))(input)
 }
 
-fn parse_action(input: &str) -> IResult<&str, AWKAction> {
+fn parse_action(input: &str) -> IResult<&str, Vec<AWKStatement>> {
     let (input, _) = tuple((char('{'), char('}')))(input)?;
-    Ok((input, AWKAction {}))
+    Ok((input, vec![]))
 }
 
 fn parse_pattern(input: &str) -> IResult<&str, AWKPattern> {
@@ -66,14 +66,14 @@ fn test_parse_item() {
     let a = parse_item("{}");
     let e = AWKItem::AWKPatternAction(AWKPatternAction {
         pattern: AWKPattern::Always,
-        action: AWKAction {},
+        action: vec![],
     });
     assert_eq!(Ok(("", e)), a);
 
     let a = parse_item("BEGIN{}");
     let e = AWKItem::AWKPatternAction(AWKPatternAction {
         pattern: AWKPattern::Begin,
-        action: AWKAction {},
+        action: vec![],
     });
     assert_eq!(Ok(("", e)), a);
 }

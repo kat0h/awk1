@@ -20,7 +20,7 @@ pub enum AWKItem {
 #[derive(Debug, PartialEq)]
 pub struct AWKPatternAction {
     pub pattern: AWKPattern,
-    pub action: AWKAction,
+    pub action: Vec<AWKStatement>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -31,7 +31,9 @@ pub enum AWKPattern {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct AWKAction {}
+pub enum AWKStatement {
+    AWKPrint(AWKPrint)
+}
 
 #[derive(Debug, PartialEq)]
 pub enum AWKExpr {
