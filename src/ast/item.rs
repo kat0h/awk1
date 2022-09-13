@@ -10,11 +10,14 @@ use nom::{
     bytes::complete::tag,
     character::complete::char,
     combinator::map,
-    sequence::tuple,
+    multi::separated_list0,
+    sequence::{tuple, delimited},
     IResult,
 };
 
 use crate::ast::def::{AWKItem, AWKPattern, AWKPatternAction, AWKStatement};
+
+use super::statement::parse_statement;
 
 /*
  * action
@@ -39,15 +42,17 @@ pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
 }
 
 fn parse_action(input: &str) -> IResult<&str, Vec<AWKStatement>> {
-    let (input, _) = tuple((char('{'), char('}')))(input)?;
-    Ok((input, vec![]))
+    delimited(
+        char('{'),
+        separated_list0(char(';'), parse_statement),
+        char('}'),
+    )(input)
 }
 
 fn parse_pattern(input: &str) -> IResult<&str, AWKPattern> {
     parse_special_pattern(input)
 }
 
-#[allow(dead_code)]
 fn parse_normal_pattern(_input: &str) -> IResult<&str, AWKPattern> {
     unimplemented!()
 }

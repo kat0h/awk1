@@ -5,8 +5,6 @@
  *   Parse string literal that is delimited by " character
  */
 
-#![allow(dead_code)]
-
 use crate::ast::def::AWKString;
 
 use nom::{

@@ -32,7 +32,7 @@ pub enum AWKPattern {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKStatement {
-    AWKPrint(AWKPrint)
+    AWKPrint(AWKPrint),
 }
 
 #[derive(Debug, PartialEq)]

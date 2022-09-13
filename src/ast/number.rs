@@ -5,8 +5,6 @@
  *   Parse number literal
  */
 
-#![allow(dead_code)]
-
 use crate::ast::def::AWKNumber;
 use std::num::{ParseFloatError, ParseIntError};
 
