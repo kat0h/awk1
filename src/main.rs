@@ -36,8 +36,7 @@ fn mainloop() {
         return;
     }
     // executable program
-    let core = AWKCore::new_core(parsed_program.unwrap().1);
-    dbg!(&core);
+    let mut core = AWKCore::new_core(parsed_program.unwrap().1);
 
     core.exec_program();
 }

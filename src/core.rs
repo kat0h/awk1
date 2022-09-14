@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::ast::def::AWKProgram;
+use crate::ast::def::*;
 
 #[derive(Debug, PartialEq)]
 struct AWKFields {
@@ -25,14 +25,34 @@ impl AWKFields {
 #[derive(Debug, PartialEq)]
 pub struct AWKCore {
     program: AWKProgram,
+    // environment
+    nr: i64,
 }
 
 impl AWKCore {
     pub fn new_core(program: AWKProgram) -> AWKCore {
-        return AWKCore { program };
+        return AWKCore { program, nr: 0 };
     }
-    pub fn exec_program(&self) {
+
+    pub fn exec_program(&mut self) {
+        // find BEGIN pattern
+        println!("---BEGIN---");
+        for i in self.program.item_list.iter() {
+            match i {
+                AWKItem::AWKPatternAction(pattern_action) => {
+                    match pattern_action.pattern {
+                        AWKPattern::Begin => {
+                            dbg!(pattern_action);
+                        }
+                        _ => (),
+                    };
+                }
+            };
+        }
+
         loop {
+            self.nr += 1;
+            // Read one line from stdin
             let mut line = String::new();
             if io::stdin()
                 .read_line(&mut line)
@@ -47,12 +67,29 @@ impl AWKCore {
                         .collect(),
                 };
                 let nf = fields.nf();
+                /*
                 for f in 0..=nf {
                     println!("${}: {}", f, fields.get_field(f).unwrap_or("".to_string()));
                 }
+                */
             } else {
                 break;
             }
+        }
+
+        // find END pattern
+        println!("---END---");
+        for i in self.program.item_list.iter() {
+            match i {
+                AWKItem::AWKPatternAction(pattern_action) => {
+                    match pattern_action.pattern {
+                        AWKPattern::End => {
+                            dbg!(pattern_action);
+                        }
+                        _ => (),
+                    };
+                }
+            };
         }
     }
 }
