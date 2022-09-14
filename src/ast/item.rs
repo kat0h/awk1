@@ -11,7 +11,7 @@ use nom::{
     character::complete::char,
     combinator::map,
     multi::separated_list0,
-    sequence::{tuple, delimited},
+    sequence::delimited,
     IResult,
 };
 
