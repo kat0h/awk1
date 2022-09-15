@@ -37,6 +37,11 @@ pub enum AWKStatement {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKExpr {
+    AWKValue(AWKValue),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AWKValue {
     AWKNumber(AWKNumber),
     AWKString(AWKString),
 }

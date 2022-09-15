@@ -67,6 +67,7 @@ impl AWKCore {
                         .collect(),
                 };
                 let nf = fields.nf();
+                println!("NF: {nf}");
                 /*
                 for f in 0..=nf {
                     println!("${}: {}", f, fields.get_field(f).unwrap_or("".to_string()));

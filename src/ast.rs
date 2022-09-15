@@ -13,6 +13,7 @@ pub mod print_statement;
 pub mod program;
 pub mod statement;
 pub mod string;
+pub mod value;
 
 /*
  * Expr : AWKNUMBER | AWKSTRING
