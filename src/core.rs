@@ -37,12 +37,12 @@ impl AWKCore {
     pub fn exec_program(&mut self) {
         // find BEGIN pattern
         println!("---BEGIN---");
-        for i in self.program.item_list.iter() {
+        for i in &self.program.item_list {
             match i {
                 AWKItem::AWKPatternAction(pattern_action) => {
                     match pattern_action.pattern {
                         AWKPattern::Begin => {
-                            dbg!(pattern_action);
+                            self.exec_awkaction(&pattern_action.action);
                         }
                         _ => (),
                     };
@@ -80,17 +80,34 @@ impl AWKCore {
 
         // find END pattern
         println!("---END---");
-        for i in self.program.item_list.iter() {
+        for i in &self.program.item_list {
             match i {
                 AWKItem::AWKPatternAction(pattern_action) => {
                     match pattern_action.pattern {
-                        AWKPattern::End => {
-                            dbg!(pattern_action);
-                        }
+                        AWKPattern::End => self.exec_awkaction(&pattern_action.action),
                         _ => (),
                     };
                 }
             };
+        }
+    }
+
+    fn exec_awkaction(&self, actions: &Vec<AWKStatement>) {
+        for action in actions.iter() {
+            dbg!(&action);
+        }
+    }
+
+    fn fmt_awkvalue(value: AWKValue) -> String {
+        match value {
+            AWKValue::AWKNumber(_n) => "hoge".to_string(),
+            AWKValue::AWKString(s) => s.value.clone(),
+        }
+    }
+
+    fn exec_awk_expr(&self, expr: AWKExpr) -> AWKValue {
+        match expr {
+            AWKExpr::AWKValue(value) => value,
         }
     }
 }
