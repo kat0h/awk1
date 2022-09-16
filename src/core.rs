@@ -26,23 +26,27 @@ impl AWKFields {
 pub struct AWKCore {
     program: AWKProgram,
     // environment
-    nr: i64,
+    nr: i64, // number of records
+    nf: i64, // number of fields
 }
 
 impl AWKCore {
     pub fn new_core(program: AWKProgram) -> AWKCore {
-        return AWKCore { program, nr: 0 };
+        return AWKCore {
+            program,
+            nr: 0,
+            nf: 0,
+        };
     }
 
     pub fn exec_program(&mut self) {
         // find BEGIN pattern
-        println!("---BEGIN---");
         for i in &self.program.item_list {
             match i {
                 AWKItem::AWKPatternAction(pattern_action) => {
                     match pattern_action.pattern {
                         AWKPattern::Begin => {
-                            self.exec_awkaction(&pattern_action.action);
+                            self.awkaction_exec(&pattern_action.action);
                         }
                         _ => (),
                     };
@@ -51,6 +55,8 @@ impl AWKCore {
         }
 
         loop {
+            // TODO: IF AWKProgram has BEGIN or END pattern only, Skip main loop
+
             self.nr += 1;
             // Read one line from stdin
             let mut line = String::new();
@@ -66,25 +72,29 @@ impl AWKCore {
                         .map(|f| f.to_string())
                         .collect(),
                 };
-                let nf = fields.nf();
-                println!("NF: {nf}");
-                /*
-                for f in 0..=nf {
-                    println!("${}: {}", f, fields.get_field(f).unwrap_or("".to_string()));
+                self.nf = fields.nf() as i64;
+
+                for i in &self.program.item_list {
+                    match i {
+                        AWKItem::AWKPatternAction(pattern_action) => {
+                            match pattern_action.pattern {
+                                AWKPattern::Always => self.awkaction_exec(&pattern_action.action),
+                                _ => (),
+                            };
+                        }
+                    };
                 }
-                */
             } else {
                 break;
             }
         }
 
         // find END pattern
-        println!("---END---");
         for i in &self.program.item_list {
             match i {
                 AWKItem::AWKPatternAction(pattern_action) => {
                     match pattern_action.pattern {
-                        AWKPattern::End => self.exec_awkaction(&pattern_action.action),
+                        AWKPattern::End => self.awkaction_exec(&pattern_action.action),
                         _ => (),
                     };
                 }
@@ -92,22 +102,31 @@ impl AWKCore {
         }
     }
 
-    fn exec_awkaction(&self, actions: &Vec<AWKStatement>) {
-        for action in actions.iter() {
-            dbg!(&action);
+    fn awkaction_exec(&self, actions: &Vec<AWKStatement>) {
+        for statement in actions {
+            match statement {
+                AWKStatement::AWKPrint(awkprint) => {
+                    for expr in &awkprint.exprlist {
+                        println!("{} ", self.awkvalue_fmt(self.awkexpr_eval(expr)));
+                    }
+                }
+            };
         }
     }
 
-    fn fmt_awkvalue(value: AWKValue) -> String {
+    fn awkvalue_fmt(&self, value: AWKValue) -> String {
         match value {
-            AWKValue::AWKNumber(_n) => "hoge".to_string(),
+            AWKValue::AWKNumber(n) => match n {
+                AWKNumber::Int(i) => i.to_string(),
+                AWKNumber::Float(f) => f.to_string(),
+            },
             AWKValue::AWKString(s) => s.value.clone(),
         }
     }
 
-    fn exec_awk_expr(&self, expr: AWKExpr) -> AWKValue {
+    fn awkexpr_eval(&self, expr: &AWKExpr) -> AWKValue {
         match expr {
-            AWKExpr::AWKValue(value) => value,
+            AWKExpr::AWKValue(value) => value.clone(),
         }
     }
 }

@@ -54,7 +54,7 @@ pub struct AWKString {
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKNumber {
     Int(i64),
-    Float(f64)
+    Float(f64),
 }
 
 #[derive(Debug, PartialEq)]
