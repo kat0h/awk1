@@ -106,9 +106,16 @@ impl AWKCore {
         for statement in actions {
             match statement {
                 AWKStatement::AWKPrint(awkprint) => {
+                    let mut s = false;
                     for expr in &awkprint.exprlist {
-                        println!("{} ", self.awkvalue_fmt(self.awkexpr_eval(expr)));
+                        print!(
+                            "{}{}",
+                            if s { " " } else { "" },
+                            self.awkvalue_fmt(self.awkexpr_eval(expr))
+                        );
+                        s = true;
                     }
+                    println!();
                 }
             };
         }
