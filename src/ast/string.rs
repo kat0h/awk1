@@ -37,7 +37,7 @@ pub fn parse_string(input: &str) -> IResult<&str, AWKStr> {
             ),
             char('\"'),
         ),
-        |str: String| -> AWKStr { AWKStr { value: str.clone() } },
+        |str: String| -> AWKStr { AWKStr { val: str.clone() } },
     )(input)
 }
 
@@ -47,7 +47,7 @@ fn test_parse_string() {
         Ok((
             "",
             AWKStr {
-                value: "TEST \n \"THE\" \\ World!!!".to_string()
+                val: "TEST \n \"THE\" \\ World!!!".to_string()
             }
         )),
         parse_string("\"TEST \\n \\\"THE\\\" \\\\ World!!!\"")

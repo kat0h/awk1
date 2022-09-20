@@ -6,14 +6,14 @@
  */
 
 use crate::ast::{
-    def::{AWKPrint, AWKStatement},
+    def::{AWKPrint, AWKStat},
     print_statement::parse_print,
 };
 use nom::{combinator::map, IResult};
 
-pub fn parse_statement(input: &str) -> IResult<&str, AWKStatement> {
-    map(parse_print, |p: AWKPrint| -> AWKStatement {
-        AWKStatement::Print(p)
+pub fn parse_statement(input: &str) -> IResult<&str, AWKStat> {
+    map(parse_print, |p: AWKPrint| -> AWKStat {
+        AWKStat::Print(p)
     })(input)
 }
 
@@ -22,7 +22,7 @@ fn test_parse_statement() {
     assert_eq!(
         Ok((
             "",
-            AWKStatement::Print(parse_print("print(123)").unwrap().1)
+            AWKStat::Print(parse_print("print(123)").unwrap().1)
         )),
         parse_statement("print(123)")
     );

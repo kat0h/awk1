@@ -116,10 +116,10 @@ impl AWKCore {
 
 // AWKPatternAction
 impl AWKCore {
-    fn exec_awkaction(&self, actions: &Vec<AWKStatement>) {
+    fn exec_awkaction(&self, actions: &Vec<AWKStat>) {
         for statement in actions {
             match statement {
-                AWKStatement::Print(awkprint) => self.exec_awkprint(awkprint),
+                AWKStat::Print(awkprint) => self.exec_awkprint(awkprint),
             };
         }
     }
@@ -141,7 +141,7 @@ impl AWKCore {
 
 // AWKExpr
 impl AWKCore {
-    fn eval_awkexpr(&self, expr: &AWKExpr) -> AWKValue {
+    fn eval_awkexpr(&self, expr: &AWKExpr) -> AWKVal {
         match expr {
             AWKExpr::Value(value) => value.clone(),
             _ => panic!(),
@@ -151,13 +151,13 @@ impl AWKCore {
 
 // AWKValue
 impl AWKCore {
-    fn fmt_awkvalue(&self, value: AWKValue) -> String {
+    fn fmt_awkvalue(&self, value: AWKVal) -> String {
         match value {
-            AWKValue::Num(n) => match n {
+            AWKVal::Num(n) => match n {
                 AWKNum::Int(i) => i.to_string(),
                 AWKNum::Float(f) => f.to_string(),
             },
-            AWKValue::Str(s) => s.value.clone(),
+            AWKVal::Str(s) => s.val.clone(),
         }
     }
 }

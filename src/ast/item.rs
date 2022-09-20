@@ -15,7 +15,7 @@ use nom::{
     IResult,
 };
 
-use crate::ast::def::{AWKItem, AWKPattern, AWKPatternAction, AWKStatement};
+use crate::ast::def::{AWKItem, AWKPattern, AWKPatternAction, AWKStat};
 
 use super::statement::parse_statement;
 
@@ -26,7 +26,7 @@ use super::statement::parse_statement;
  */
 pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
     alt((
-        map(parse_action, |action: Vec<AWKStatement>| {
+        map(parse_action, |action: Vec<AWKStat>| {
             AWKItem::PatternAction(AWKPatternAction {
                 pattern: AWKPattern::Always,
                 action,
@@ -34,14 +34,14 @@ pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
         }),
         map(
             tuple((parse_pattern, parse_action)),
-            |(pattern, action): (AWKPattern, Vec<AWKStatement>)| {
+            |(pattern, action): (AWKPattern, Vec<AWKStat>)| {
                 AWKItem::PatternAction(AWKPatternAction { pattern, action })
             },
         ),
     ))(input)
 }
 
-fn parse_action(input: &str) -> IResult<&str, Vec<AWKStatement>> {
+fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
     delimited(
         char('{'),
         separated_list0(char(';'), parse_statement),
