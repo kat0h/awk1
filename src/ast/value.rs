@@ -11,12 +11,8 @@ use nom::{branch::alt, combinator::map, IResult};
 
 pub fn parse_value(input: &str) -> IResult<&str, AWKVal> {
     alt((
-        map(parse_number, |n: AWKNum| -> AWKVal {
-            AWKVal::Num(n)
-        }),
-        map(parse_string, |s: AWKStr| -> AWKVal {
-            AWKVal::Str(s)
-        }),
+        map(parse_number, |n: AWKNum| -> AWKVal { AWKVal::Num(n) }),
+        map(parse_string, |s: AWKStr| -> AWKVal { AWKVal::Str(s) }),
     ))(input)
 }
 

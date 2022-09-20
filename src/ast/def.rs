@@ -50,7 +50,7 @@ pub enum AWKOperation {
     Add, // +
     Sub, // -
     Mul, // *
-    Div  // /
+    Div, // /
 }
 
 #[derive(Debug, PartialEq, Clone)]

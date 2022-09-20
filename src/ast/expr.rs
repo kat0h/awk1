@@ -10,7 +10,12 @@ use crate::ast::{
     value::parse_value,
 };
 use nom::{
-    branch::alt, character::complete::char, combinator::map, multi::many0, sequence::{tuple, delimited}, IResult,
+    branch::alt,
+    character::complete::char,
+    combinator::map,
+    multi::many0,
+    sequence::{delimited, tuple},
+    IResult,
 };
 
 use super::def::AWKOperation;
@@ -22,10 +27,7 @@ pub fn parse_expr(input: &str) -> IResult<&str, Box<AWKExpr>> {
 // + -
 fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
     map(
-        tuple((
-            expr2,
-            many0(tuple((alt((char('+'), char('-'))), expr2))),
-        )),
+        tuple((expr2, many0(tuple((alt((char('+'), char('-'))), expr2))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             // [1, 2, 3, 4] -> [[[1, 2], 3], 4]
             let mut i = expr;
@@ -35,19 +37,19 @@ fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
                         i = Box::new(AWKExpr::BinaryOperation {
                             op: AWKOperation::Add,
                             left: i,
-                            right: k
+                            right: k,
                         });
-                    },
+                    }
                     ('-', k) => {
                         i = Box::new(AWKExpr::BinaryOperation {
                             op: AWKOperation::Sub,
                             left: i,
-                            right: k
+                            right: k,
                         })
-                    },
+                    }
                     _ => panic!(),
                 }
-            };
+            }
             return i;
         },
     )(input)
@@ -56,10 +58,7 @@ fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
 // * /
 fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
     map(
-        tuple((
-            expr3,
-            many0(tuple((alt((char('*'), char('/'))), expr3))),
-        )),
+        tuple((expr3, many0(tuple((alt((char('*'), char('/'))), expr3))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             let mut i = expr;
             for j in exprs {
@@ -68,38 +67,32 @@ fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
                         i = Box::new(AWKExpr::BinaryOperation {
                             op: AWKOperation::Mul,
                             left: i,
-                            right: k
+                            right: k,
                         });
-                    },
+                    }
                     ('/', k) => {
                         i = Box::new(AWKExpr::BinaryOperation {
                             op: AWKOperation::Div,
                             left: i,
-                            right: k
+                            right: k,
                         })
-                    },
+                    }
                     _ => panic!(),
                 }
-            };
+            }
             return i;
         },
     )(input)
 }
 
 fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    alt((
-        value,
-        delimited(char('('), expr1, char(')'))
-    ))(input)
+    alt((value, delimited(char('('), expr1, char(')'))))(input)
 }
 
 fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    map(
-        parse_value,
-        |val: AWKVal| -> Box<AWKExpr> {
-            Box::new(AWKExpr::Value(val))
-        }
-    )(input)
+    map(parse_value, |val: AWKVal| -> Box<AWKExpr> {
+        Box::new(AWKExpr::Value(val))
+    })(input)
 }
 
 #[test]
