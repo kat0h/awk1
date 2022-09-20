@@ -144,6 +144,7 @@ impl AWKCore {
     fn eval_awkexpr(&self, expr: &AWKExpr) -> AWKValue {
         match expr {
             AWKExpr::AWKValue(value) => value.clone(),
+            _ => panic!(),
         }
     }
 }

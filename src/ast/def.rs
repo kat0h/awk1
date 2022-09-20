@@ -38,6 +38,17 @@ pub enum AWKStatement {
 #[derive(Debug, PartialEq)]
 pub enum AWKExpr {
     AWKValue(AWKValue),
+    AWKBinaryOperation {
+        op: AWKOperation,
+        left: Box<AWKExpr>,
+        right: Box<AWKExpr>,
+    },
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AWKOperation {
+    Plus,
+    Minus
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -60,5 +71,5 @@ pub enum AWKNumber {
 #[derive(Debug, PartialEq)]
 pub struct AWKPrint {
     // 一時的に
-    pub exprlist: Vec<AWKExpr>,
+    pub exprlist: Vec<Box<AWKExpr>>,
 }

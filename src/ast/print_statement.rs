@@ -28,7 +28,7 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
                 delimited(char('('), parse_print_expr_list, char(')')),
                 parse_print_expr_list,
             ))),
-            |expr: Option<Vec<AWKExpr>>| -> Vec<AWKExpr> {
+            |expr: Option<Vec<Box<AWKExpr>>>| -> Vec<Box<AWKExpr>> {
                 match expr {
                     Some(expr) => expr,
                     None => vec![],
@@ -40,7 +40,7 @@ pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
     Ok((input, AWKPrint { exprlist }))
 }
 
-fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<AWKExpr>> {
+fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<Box<AWKExpr>>> {
     separated_list1(char(','), parse_expr)(input)
 }
 
