@@ -14,7 +14,7 @@ pub struct AWKProgram {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKItem {
-    AWKPatternAction(AWKPatternAction),
+    PatternAction(AWKPatternAction),
 }
 
 #[derive(Debug, PartialEq)]
@@ -32,13 +32,13 @@ pub enum AWKPattern {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKStatement {
-    AWKPrint(AWKPrint),
+    Print(AWKPrint),
 }
 
 #[derive(Debug, PartialEq)]
 pub enum AWKExpr {
-    AWKValue(AWKValue),
-    AWKBinaryOperation {
+    Value(AWKValue),
+    BinaryOperation {
         op: AWKOperation,
         left: Box<AWKExpr>,
         right: Box<AWKExpr>,
@@ -53,17 +53,17 @@ pub enum AWKOperation {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKValue {
-    AWKNumber(AWKNumber),
-    AWKString(AWKString),
+    Num(AWKNum),
+    Str(AWKStr),
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AWKString {
+pub struct AWKStr {
     pub value: String,
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum AWKNumber {
+pub enum AWKNum {
     Int(i64),
     Float(f64),
 }

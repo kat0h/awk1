@@ -5,7 +5,7 @@
  *   Parse string literal that is delimited by " character
  */
 
-use crate::ast::def::AWKString;
+use crate::ast::def::AWKStr;
 
 use nom::{
     branch::alt,
@@ -16,7 +16,7 @@ use nom::{
     IResult,
 };
 
-pub fn parse_string(input: &str) -> IResult<&str, AWKString> {
+pub fn parse_string(input: &str) -> IResult<&str, AWKStr> {
     map(
         delimited(
             char('\"'),
@@ -37,7 +37,7 @@ pub fn parse_string(input: &str) -> IResult<&str, AWKString> {
             ),
             char('\"'),
         ),
-        |str: String| -> AWKString { AWKString { value: str.clone() } },
+        |str: String| -> AWKStr { AWKStr { value: str.clone() } },
     )(input)
 }
 
@@ -46,7 +46,7 @@ fn test_parse_string() {
     assert_eq!(
         Ok((
             "",
-            AWKString {
+            AWKStr {
                 value: "TEST \n \"THE\" \\ World!!!".to_string()
             }
         )),

@@ -27,7 +27,7 @@ use super::statement::parse_statement;
 pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
     alt((
         map(parse_action, |action: Vec<AWKStatement>| {
-            AWKItem::AWKPatternAction(AWKPatternAction {
+            AWKItem::PatternAction(AWKPatternAction {
                 pattern: AWKPattern::Always,
                 action,
             })
@@ -35,7 +35,7 @@ pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
         map(
             tuple((parse_pattern, parse_action)),
             |(pattern, action): (AWKPattern, Vec<AWKStatement>)| {
-                AWKItem::AWKPatternAction(AWKPatternAction { pattern, action })
+                AWKItem::PatternAction(AWKPatternAction { pattern, action })
             },
         ),
     ))(input)
@@ -69,14 +69,14 @@ fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
 #[test]
 fn test_parse_item() {
     let a = parse_item("{}");
-    let e = AWKItem::AWKPatternAction(AWKPatternAction {
+    let e = AWKItem::PatternAction(AWKPatternAction {
         pattern: AWKPattern::Always,
         action: vec![],
     });
     assert_eq!(Ok(("", e)), a);
 
     let a = parse_item("BEGIN{}");
-    let e = AWKItem::AWKPatternAction(AWKPatternAction {
+    let e = AWKItem::PatternAction(AWKPatternAction {
         pattern: AWKPattern::Begin,
         action: vec![],
     });

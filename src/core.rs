@@ -67,7 +67,7 @@ impl AWKCore {
 
                 for i in &self.program.item_list {
                     match i {
-                        AWKItem::AWKPatternAction(pattern_action) => {
+                        AWKItem::PatternAction(pattern_action) => {
                             match pattern_action.pattern {
                                 AWKPattern::Always => self.exec_awkaction(&pattern_action.action),
                                 _ => (),
@@ -85,7 +85,7 @@ impl AWKCore {
         // find BEGIN pattern
         for i in &self.program.item_list {
             match i {
-                AWKItem::AWKPatternAction(pattern_action) => {
+                AWKItem::PatternAction(pattern_action) => {
                     match pattern_action.pattern {
                         AWKPattern::Begin => {
                             self.exec_awkaction(&pattern_action.action);
@@ -101,7 +101,7 @@ impl AWKCore {
         // find BEGIN pattern
         for i in &self.program.item_list {
             match i {
-                AWKItem::AWKPatternAction(pattern_action) => {
+                AWKItem::PatternAction(pattern_action) => {
                     match pattern_action.pattern {
                         AWKPattern::End => {
                             self.exec_awkaction(&pattern_action.action);
@@ -119,7 +119,7 @@ impl AWKCore {
     fn exec_awkaction(&self, actions: &Vec<AWKStatement>) {
         for statement in actions {
             match statement {
-                AWKStatement::AWKPrint(awkprint) => self.exec_awkprint(awkprint),
+                AWKStatement::Print(awkprint) => self.exec_awkprint(awkprint),
             };
         }
     }
@@ -143,7 +143,7 @@ impl AWKCore {
 impl AWKCore {
     fn eval_awkexpr(&self, expr: &AWKExpr) -> AWKValue {
         match expr {
-            AWKExpr::AWKValue(value) => value.clone(),
+            AWKExpr::Value(value) => value.clone(),
             _ => panic!(),
         }
     }
@@ -153,11 +153,11 @@ impl AWKCore {
 impl AWKCore {
     fn fmt_awkvalue(&self, value: AWKValue) -> String {
         match value {
-            AWKValue::AWKNumber(n) => match n {
-                AWKNumber::Int(i) => i.to_string(),
-                AWKNumber::Float(f) => f.to_string(),
+            AWKValue::Num(n) => match n {
+                AWKNum::Int(i) => i.to_string(),
+                AWKNum::Float(f) => f.to_string(),
             },
-            AWKValue::AWKString(s) => s.value.clone(),
+            AWKValue::Str(s) => s.value.clone(),
         }
     }
 }

@@ -5,7 +5,7 @@
  *   Parse number literal
  */
 
-use crate::ast::def::AWKNumber;
+use crate::ast::def::AWKNum;
 use std::num::{ParseFloatError, ParseIntError};
 
 use nom::{
@@ -76,38 +76,38 @@ fn parse_int(input: &str) -> IResult<&str, i64> {
     )(input)
 }
 
-pub fn parse_number(input: &str) -> IResult<&str, AWKNumber> {
+pub fn parse_number(input: &str) -> IResult<&str, AWKNum> {
     alt((
         map_res(
             // parse float sintax
             tuple((parse_float, opt(parse_e))),
-            |(val, e): (f64, Option<i64>)| -> Result<AWKNumber, ()> {
+            |(val, e): (f64, Option<i64>)| -> Result<AWKNum, ()> {
                 let e: f64 = 10f64.powf(e.unwrap_or(0) as f64);
                 let r = val * e;
 
                 // if r is integer
                 return if r == r as i64 as f64 {
-                    Ok(AWKNumber::Int(r as i64))
+                    Ok(AWKNum::Int(r as i64))
                 } else {
-                    Ok(AWKNumber::Float(val * e))
+                    Ok(AWKNum::Float(val * e))
                 };
             },
         ),
         map_res(
             // parse int sintax
             tuple((parse_int, opt(parse_e))),
-            |(val, e): (i64, Option<i64>)| -> Result<AWKNumber, ()> {
+            |(val, e): (i64, Option<i64>)| -> Result<AWKNum, ()> {
                 match e {
                     Some(e) => {
                         let e: f64 = 10f64.powf(e as f64);
                         let r = val as f64 * e;
                         return if r == r as i64 as f64 {
-                            Ok(AWKNumber::Int(r as i64))
+                            Ok(AWKNum::Int(r as i64))
                         } else {
-                            Ok(AWKNumber::Float(r))
+                            Ok(AWKNum::Float(r))
                         };
                     }
-                    None => Ok(AWKNumber::Int(val)),
+                    None => Ok(AWKNum::Int(val)),
                 }
             },
         ),
@@ -152,17 +152,17 @@ fn test_parse_int() {
 
 #[test]
 fn test_parse_number() {
-    assert_eq!(Ok(("", AWKNumber::Int(-1))), parse_number("-1."),);
-    assert_eq!(Ok(("", AWKNumber::Float(0.1))), parse_number(".1"),);
-    assert_eq!(Ok(("", AWKNumber::Int(-1))), parse_number("-1.0"),);
-    assert_eq!(Ok(("", AWKNumber::Float(-1.2))), parse_number("-1.2"),);
-    assert_eq!(Ok(("", AWKNumber::Int(-12))), parse_number("-1.2e1"),);
-    assert_eq!(Ok(("", AWKNumber::Float(1.0e-1))), parse_number("1.0e-1"),);
-    assert_eq!(Ok(("", AWKNumber::Float(1.0e-10))), parse_number("1.0e-10"));
-    assert_eq!(Ok(("", AWKNumber::Int(10))), parse_number("0.1e2"));
+    assert_eq!(Ok(("", AWKNum::Int(-1))), parse_number("-1."),);
+    assert_eq!(Ok(("", AWKNum::Float(0.1))), parse_number(".1"),);
+    assert_eq!(Ok(("", AWKNum::Int(-1))), parse_number("-1.0"),);
+    assert_eq!(Ok(("", AWKNum::Float(-1.2))), parse_number("-1.2"),);
+    assert_eq!(Ok(("", AWKNum::Int(-12))), parse_number("-1.2e1"),);
+    assert_eq!(Ok(("", AWKNum::Float(1.0e-1))), parse_number("1.0e-1"),);
+    assert_eq!(Ok(("", AWKNum::Float(1.0e-10))), parse_number("1.0e-10"));
+    assert_eq!(Ok(("", AWKNum::Int(10))), parse_number("0.1e2"));
     assert_eq!(
-        Ok(("", AWKNumber::Float(2.2250738585072013e-308))),
+        Ok(("", AWKNum::Float(2.2250738585072013e-308))),
         parse_number("2.2250738585072013e-308")
     );
-    assert_eq!(Ok((",", AWKNumber::Int(2))), parse_number("2,"),);
+    assert_eq!(Ok((",", AWKNum::Int(2))), parse_number("2,"),);
 }

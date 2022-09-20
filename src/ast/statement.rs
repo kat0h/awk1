@@ -13,7 +13,7 @@ use nom::{combinator::map, IResult};
 
 pub fn parse_statement(input: &str) -> IResult<&str, AWKStatement> {
     map(parse_print, |p: AWKPrint| -> AWKStatement {
-        AWKStatement::AWKPrint(p)
+        AWKStatement::Print(p)
     })(input)
 }
 
@@ -22,7 +22,7 @@ fn test_parse_statement() {
     assert_eq!(
         Ok((
             "",
-            AWKStatement::AWKPrint(parse_print("print(123)").unwrap().1)
+            AWKStatement::Print(parse_print("print(123)").unwrap().1)
         )),
         parse_statement("print(123)")
     );

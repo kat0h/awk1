@@ -32,14 +32,14 @@ fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
             for j in exprs {
                 match j {
                     ('+', k) => {
-                        i = Box::new(AWKExpr::AWKBinaryOperation {
+                        i = Box::new(AWKExpr::BinaryOperation {
                             op: AWKOperation::Plus,
                             left: i,
                             right: Box::new(k)
                         });
                     },
                     ('-', k) => {
-                        i = Box::new(AWKExpr::AWKBinaryOperation {
+                        i = Box::new(AWKExpr::BinaryOperation {
                             op: AWKOperation::Minus,
                             left: i,
                             right: Box::new(k)
@@ -57,7 +57,7 @@ fn value(input: &str) -> IResult<&str, AWKExpr> {
     map(
         parse_value,
         |val: AWKValue| -> AWKExpr {
-            AWKExpr::AWKValue(val)
+            AWKExpr::Value(val)
         }
     )(input)
 }
