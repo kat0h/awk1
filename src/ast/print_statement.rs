@@ -6,12 +6,12 @@
  */
 
 use nom::{
-    branch::{alt, permutation},
+    branch::alt,
     bytes::complete::tag,
     character::complete::char,
     combinator::{map, opt},
     multi::separated_list1,
-    sequence::delimited,
+    sequence::{delimited, tuple},
     IResult,
 };
 
@@ -21,7 +21,7 @@ use super::def::AWKExpr;
 
 // simple_print_statement
 pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
-    let (input, (_, exprlist)) = permutation((
+    let (input, (_, exprlist)) = tuple((
         tag("print"),
         map(
             opt(alt((

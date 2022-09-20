@@ -9,16 +9,16 @@ use crate::ast::def::AWKNumber;
 use std::num::{ParseFloatError, ParseIntError};
 
 use nom::{
-    branch::{alt, permutation},
+    branch::alt,
     character::complete::{char, digit1, one_of},
-    combinator::map_res,
-    combinator::{not, opt},
+    combinator::{map_res, not, opt},
+    sequence::tuple,
     IResult,
 };
 
 fn parse_e(input: &str) -> IResult<&str, i64> {
     map_res(
-        permutation((one_of("eE"), opt(permutation((opt(one_of("+-")), digit1))))),
+        tuple((one_of("eE"), opt(tuple((opt(one_of("+-")), digit1))))),
         |(_, e): (char, Option<(Option<char>, &str)>)| -> Result<i64, ParseIntError> {
             let (sign, int) = e.unwrap_or_else(|| (None, "0"));
             let sign: i64 = if sign.unwrap_or('+') == '+' { 1 } else { -1 };
@@ -33,7 +33,7 @@ fn parse_float(input: &str) -> IResult<&str, f64> {
     // .14 +.14 -.14
     // 1. -1. +1.
     map_res(
-        permutation((
+        tuple((
             opt(one_of("+-")),
             opt(digit1),
             char('.'),
@@ -63,7 +63,7 @@ fn parse_float(input: &str) -> IResult<&str, f64> {
 
 fn parse_int(input: &str) -> IResult<&str, i64> {
     map_res(
-        permutation((opt(one_of("+-")), digit1, not(char('.')))),
+        tuple((opt(one_of("+-")), digit1, not(char('.')))),
         |(sign, int, _): (Option<char>, &str, ())| -> Result<i64, ParseIntError> {
             let sign: i64 = match sign.unwrap_or('+') {
                 '+' => 1,
@@ -80,7 +80,7 @@ pub fn parse_number(input: &str) -> IResult<&str, AWKNumber> {
     alt((
         map_res(
             // parse float sintax
-            permutation((parse_float, opt(parse_e))),
+            tuple((parse_float, opt(parse_e))),
             |(val, e): (f64, Option<i64>)| -> Result<AWKNumber, ()> {
                 let e: f64 = 10f64.powf(e.unwrap_or(0) as f64);
                 let r = val * e;
@@ -95,7 +95,7 @@ pub fn parse_number(input: &str) -> IResult<&str, AWKNumber> {
         ),
         map_res(
             // parse int sintax
-            permutation((parse_int, opt(parse_e))),
+            tuple((parse_int, opt(parse_e))),
             |(val, e): (i64, Option<i64>)| -> Result<AWKNumber, ()> {
                 match e {
                     Some(e) => {

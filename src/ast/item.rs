@@ -6,12 +6,12 @@
  */
 
 use nom::{
-    branch::{alt, permutation},
+    branch::alt,
     bytes::complete::tag,
     character::complete::char,
     combinator::map,
     multi::separated_list0,
-    sequence::delimited,
+    sequence::{delimited, tuple},
     IResult,
 };
 
@@ -33,7 +33,7 @@ pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
             })
         }),
         map(
-            permutation((parse_pattern, parse_action)),
+            tuple((parse_pattern, parse_action)),
             |(pattern, action): (AWKPattern, Vec<AWKStatement>)| {
                 AWKItem::AWKPatternAction(AWKPatternAction { pattern, action })
             },
