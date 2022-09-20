@@ -47,8 +47,10 @@ pub enum AWKExpr {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKOperation {
-    Plus,
-    Minus
+    Add, // +
+    Sub, // -
+    Mul, // *
+    Div  // /
 }
 
 #[derive(Debug, PartialEq, Clone)]
