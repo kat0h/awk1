@@ -55,17 +55,12 @@ pub enum AWKOperation {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKVal {
-    Num(AWKNum),
+    Num(AWKFloat),
     Str(AWKStr),
 }
 
 pub type AWKStr = String;
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum AWKNum {
-    Int(i64),
-    Float(f64),
-}
+pub type AWKFloat = f64;
 
 #[derive(Debug, PartialEq)]
 pub struct AWKPrint {

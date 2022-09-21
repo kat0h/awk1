@@ -138,7 +138,7 @@ impl AWKCore {
             print!(
                 "{}{}",
                 if s { " " } else { "" },
-                self.fmt_awkvalue(self.eval_awkexpr(expr))
+                self.to_awkstr(self.eval_awkexpr(expr))
             );
             s = true;
         }
@@ -151,20 +151,48 @@ impl AWKCore {
     fn eval_awkexpr(&self, expr: &AWKExpr) -> AWKVal {
         match expr {
             AWKExpr::Value(value) => value.clone(),
-            _ => panic!(),
+            AWKExpr::BinaryOperation { op, left, right } => self.eval_binary_operation(op, left, right),
         }
+    }
+
+    // error handring
+    fn eval_binary_operation(&self, op: &AWKOperation, left: &Box<AWKExpr>, right: &Box<AWKExpr>) -> AWKVal {
+        let left = self.to_awknum(self.eval_awkexpr(left));
+        let right = self.to_awknum(self.eval_awkexpr(right));
+        return AWKVal::Num(match op {
+            AWKOperation::Add => left + right,
+            AWKOperation::Sub => left - right,
+            AWKOperation::Mul => left * right,
+            AWKOperation::Div => {
+                if right == 0.0 {
+                    println!("divisition by zero");
+                    todo!();
+                }
+                left / right
+            }
+        });
     }
 }
 
-// AWKValue
+// AWKValue -> AWKNum / AWKStr
 impl AWKCore {
-    fn fmt_awkvalue(&self, value: AWKVal) -> String {
+    fn to_awkstr(&self, value: AWKVal) -> AWKStr {
         match value {
-            AWKVal::Num(n) => match n {
-                AWKNum::Int(i) => i.to_string(),
-                AWKNum::Float(f) => f.to_string(),
-            },
-            AWKVal::Str(s) => s.val.clone(),
+            AWKVal::Num(n) => n.to_string(),
+            AWKVal::Str(s) => s.clone(),
+        }
+    }
+
+    fn to_awknum(&self, value: AWKVal) -> AWKFloat {
+        use crate::ast::number::parse_number;
+        match value {
+            AWKVal::Num(n) => n,
+            AWKVal::Str(s) => {
+                match parse_number(&s) {
+                    Ok((_, n)) => n,
+                    Err(_) => 0.0,
+                }
+            }
         }
     }
 }

@@ -5,13 +5,13 @@
  *   value
  */
 
-use crate::ast::def::{AWKNum, AWKStr, AWKVal};
+use crate::ast::def::{AWKFloat, AWKStr, AWKVal};
 use crate::ast::{number::parse_number, string::parse_string};
 use nom::{branch::alt, combinator::map, IResult};
 
 pub fn parse_value(input: &str) -> IResult<&str, AWKVal> {
     alt((
-        map(parse_number, |n: AWKNum| -> AWKVal { AWKVal::Num(n) }),
+        map(parse_number, |n: AWKFloat| -> AWKVal { AWKVal::Num(n) }),
         map(parse_string, |s: AWKStr| -> AWKVal { AWKVal::Str(s) }),
     ))(input)
 }

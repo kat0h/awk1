@@ -5,25 +5,25 @@
  *   Parse number literal
  */
 
-use crate::ast::def::AWKNum;
+use crate::ast::def::AWKFloat;
 use std::num::{ParseFloatError, ParseIntError};
 
 use nom::{
     branch::alt,
     character::complete::{char, digit1, one_of},
-    combinator::{map_res, not, opt},
+    combinator::{map, map_res,  not, opt},
     sequence::tuple,
     IResult,
 };
 
-fn parse_e(input: &str) -> IResult<&str, i64> {
+fn parse_e(input: &str) -> IResult<&str, f64> {
     map_res(
         tuple((one_of("eE"), opt(tuple((opt(one_of("+-")), digit1))))),
-        |(_, e): (char, Option<(Option<char>, &str)>)| -> Result<i64, ParseIntError> {
+        |(_, e): (char, Option<(Option<char>, &str)>)| -> Result<f64, ParseIntError> {
             let (sign, int) = e.unwrap_or_else(|| (None, "0"));
             let sign: i64 = if sign.unwrap_or('+') == '+' { 1 } else { -1 };
             let int: i64 = int.parse::<i64>()?;
-            Ok(sign * int)
+            Ok((sign * int) as f64)
         },
     )(input)
 }
@@ -61,66 +61,54 @@ fn parse_float(input: &str) -> IResult<&str, f64> {
     )(input)
 }
 
-fn parse_int(input: &str) -> IResult<&str, i64> {
+fn parse_int(input: &str) -> IResult<&str, f64> {
     map_res(
         tuple((opt(one_of("+-")), digit1, not(char('.')))),
-        |(sign, int, _): (Option<char>, &str, ())| -> Result<i64, ParseIntError> {
+        |(sign, int, _): (Option<char>, &str, ())| -> Result<f64, ParseIntError> {
             let sign: i64 = match sign.unwrap_or('+') {
                 '+' => 1,
                 _ => -1,
             };
             let integer: i64 = int.parse::<i64>()?;
 
-            Ok(sign * integer)
+            Ok((sign * integer) as f64)
         },
     )(input)
 }
 
-pub fn parse_number(input: &str) -> IResult<&str, AWKNum> {
+pub fn parse_number(input: &str) -> IResult<&str, AWKFloat> {
     alt((
-        map_res(
+        map(
             // parse float sintax
             tuple((parse_float, opt(parse_e))),
-            |(val, e): (f64, Option<i64>)| -> Result<AWKNum, ()> {
-                let e: f64 = 10f64.powf(e.unwrap_or(0) as f64);
-                let r = val * e;
-
-                // if r is integer
-                return if r == r as i64 as f64 {
-                    Ok(AWKNum::Int(r as i64))
-                } else {
-                    Ok(AWKNum::Float(val * e))
-                };
-            },
+            |(val, e): (f64, Option<f64>)| -> AWKFloat {
+                let e = 10_f64.powf(e.unwrap_or(0.0));
+                return val * e;
+            }
         ),
-        map_res(
+        map(
             // parse int sintax
             tuple((parse_int, opt(parse_e))),
-            |(val, e): (i64, Option<i64>)| -> Result<AWKNum, ()> {
+            |(val, e): (f64, Option<f64>)| -> AWKFloat {
                 match e {
                     Some(e) => {
-                        let e: f64 = 10f64.powf(e as f64);
-                        let r = val as f64 * e;
-                        return if r == r as i64 as f64 {
-                            Ok(AWKNum::Int(r as i64))
-                        } else {
-                            Ok(AWKNum::Float(r))
-                        };
-                    }
-                    None => Ok(AWKNum::Int(val)),
+                        let e = 10f64.powf(e);
+                        val * e
+                    },
+                    None => val,
                 }
-            },
+            }
         ),
     ))(input)
 }
 
 #[test]
 fn test_parse_e() {
-    assert_eq!(Ok(("", 1)), parse_e("e1"));
-    assert_eq!(Ok(("", 1)), parse_e("E1"));
-    assert_eq!(Ok(("", 0)), parse_e("e"));
-    assert_eq!(Ok(("", 1)), parse_e("e+1"));
-    assert_eq!(Ok(("", -1)), parse_e("e-1"));
+    assert_eq!(Ok(("", 1.0)), parse_e("e1"));
+    assert_eq!(Ok(("", 1.0)), parse_e("E1"));
+    assert_eq!(Ok(("", 0.0)), parse_e("e"));
+    assert_eq!(Ok(("", 1.0)), parse_e("e+1"));
+    assert_eq!(Ok(("", -1.0)), parse_e("e-1"));
 }
 
 #[test]
@@ -144,25 +132,25 @@ fn test_parse_float() {
 
 #[test]
 fn test_parse_int() {
-    assert_eq!(Ok(("", 1)), parse_int("1"));
-    assert_eq!(Ok(("", -1)), parse_int("-1"));
+    assert_eq!(Ok(("", 1.0)), parse_int("1"));
+    assert_eq!(Ok(("", -1.0)), parse_int("-1"));
 
     assert!(parse_int("1.0").is_err());
 }
 
 #[test]
 fn test_parse_number() {
-    assert_eq!(Ok(("", AWKNum::Int(-1))), parse_number("-1."),);
-    assert_eq!(Ok(("", AWKNum::Float(0.1))), parse_number(".1"),);
-    assert_eq!(Ok(("", AWKNum::Int(-1))), parse_number("-1.0"),);
-    assert_eq!(Ok(("", AWKNum::Float(-1.2))), parse_number("-1.2"),);
-    assert_eq!(Ok(("", AWKNum::Int(-12))), parse_number("-1.2e1"),);
-    assert_eq!(Ok(("", AWKNum::Float(1.0e-1))), parse_number("1.0e-1"),);
-    assert_eq!(Ok(("", AWKNum::Float(1.0e-10))), parse_number("1.0e-10"));
-    assert_eq!(Ok(("", AWKNum::Int(10))), parse_number("0.1e2"));
+    assert_eq!(Ok(("", -1.0)), parse_number("-1."));
+    assert_eq!(Ok(("", 0.1)), parse_number(".1"));
+    assert_eq!(Ok(("", -1.0)), parse_number("-1.0"));
+    assert_eq!(Ok(("", -1.2)), parse_number("-1.2"));
+    assert_eq!(Ok(("", -12.0)), parse_number("-1.2e1"));
+    assert_eq!(Ok(("", 1.0e-1)), parse_number("1.0e-1"));
+    assert_eq!(Ok(("", 1.0e-10)), parse_number("1.0e-10"));
+    assert_eq!(Ok(("", 10.0)), parse_number("0.1e2"));
     assert_eq!(
-        Ok(("", AWKNum::Float(2.2250738585072013e-308))),
+        Ok(("", 2.2250738585072013e-308)),
         parse_number("2.2250738585072013e-308")
     );
-    assert_eq!(Ok((",", AWKNum::Int(2))), parse_number("2,"),);
+    assert_eq!(Ok((",", 2.0)), parse_number("2,"));
 }
