@@ -15,9 +15,10 @@ use nom::{
     IResult,
 };
 
-use crate::ast::def::{AWKItem, AWKPattern, AWKPatternAction, AWKStat};
-
-use super::statement::parse_statement;
+use crate::ast::{
+    def::{AWKItem, AWKPattern, AWKPatternAction, AWKStat},
+    stmt::parse_statement,
+};
 
 /*
  * action

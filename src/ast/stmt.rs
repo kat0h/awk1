@@ -7,7 +7,7 @@
 
 use crate::ast::{
     def::{AWKPrint, AWKStat},
-    print_statement::parse_print,
+    print_stmt::parse_print,
 };
 use nom::{combinator::map, IResult};
 

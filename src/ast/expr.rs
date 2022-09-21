@@ -97,5 +97,5 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 #[test]
 fn test_parse_expr() {
-    dbg!(parse_expr("123-444*(555-666)--2133").unwrap());
+    dbg!(parse_expr("123-444*(555-666)-2133").unwrap());
 }

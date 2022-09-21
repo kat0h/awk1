@@ -1,3 +1,10 @@
+/*
+ * file: core.rs
+ * author: kota kato 2022
+ * description:
+ *   AST Walker Core
+ */
+
 use std::io;
 
 use crate::ast::def::*;

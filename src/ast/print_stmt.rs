@@ -10,19 +10,20 @@ use nom::{
     bytes::complete::tag,
     character::complete::char,
     combinator::{map, opt},
-    multi::separated_list1,
+    multi::{many0, separated_list1},
     sequence::{delimited, tuple},
     IResult,
 };
 
-use crate::ast::{def::AWKPrint, expr::parse_expr};
-
-use super::def::AWKExpr;
+use crate::ast::{
+    def::{AWKExpr, AWKPrint},
+    expr::parse_expr,
+};
 
 // simple_print_statement
 pub fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
     let (input, (_, exprlist)) = tuple((
-        tag("print"),
+        tuple((tag("print"), many0(char(' ')))),
         map(
             opt(alt((
                 delimited(char('('), parse_print_expr_list, char(')')),
