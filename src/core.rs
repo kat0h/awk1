@@ -77,7 +77,7 @@ impl AWKCore {
                         AWKItem::PatternAction(pattern_action) => {
                             match pattern_action.pattern {
                                 AWKPattern::Always => self.exec_awkaction(&pattern_action.action),
-                                _ => (),
+                                _ => todo!(),
                             };
                         }
                     };

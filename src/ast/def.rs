@@ -20,7 +20,7 @@ pub enum AWKItem {
 #[derive(Debug, PartialEq)]
 pub struct AWKPatternAction {
     pub pattern: AWKPattern,
-    pub action: Vec<AWKStat>,
+    pub action: Vec<AWKStat>, // action is vector of statement
 }
 
 #[derive(Debug, PartialEq)]
@@ -59,10 +59,7 @@ pub enum AWKVal {
     Str(AWKStr),
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct AWKStr {
-    pub val: String,
-}
+pub type AWKStr = String;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKNum {
