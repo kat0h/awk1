@@ -151,12 +151,19 @@ impl AWKCore {
     fn eval_awkexpr(&self, expr: &AWKExpr) -> AWKVal {
         match expr {
             AWKExpr::Value(value) => value.clone(),
-            AWKExpr::BinaryOperation { op, left, right } => self.eval_binary_operation(op, left, right),
+            AWKExpr::BinaryOperation { op, left, right } => {
+                self.eval_binary_operation(op, left, right)
+            }
         }
     }
 
     // error handring
-    fn eval_binary_operation(&self, op: &AWKOperation, left: &Box<AWKExpr>, right: &Box<AWKExpr>) -> AWKVal {
+    fn eval_binary_operation(
+        &self,
+        op: &AWKOperation,
+        left: &Box<AWKExpr>,
+        right: &Box<AWKExpr>,
+    ) -> AWKVal {
         let left = self.to_awknum(self.eval_awkexpr(left));
         let right = self.to_awknum(self.eval_awkexpr(right));
         return AWKVal::Num(match op {
@@ -187,12 +194,10 @@ impl AWKCore {
         use crate::ast::number::parse_number;
         match value {
             AWKVal::Num(n) => n,
-            AWKVal::Str(s) => {
-                match parse_number(&s) {
-                    Ok((_, n)) => n,
-                    Err(_) => 0.0,
-                }
-            }
+            AWKVal::Str(s) => match parse_number(&s) {
+                Ok((_, n)) => n,
+                Err(_) => 0.0,
+            },
         }
     }
 }

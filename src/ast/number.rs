@@ -11,7 +11,7 @@ use std::num::{ParseFloatError, ParseIntError};
 use nom::{
     branch::alt,
     character::complete::{char, digit1, one_of},
-    combinator::{map, map_res,  not, opt},
+    combinator::{map, map_res, not, opt},
     sequence::tuple,
     IResult,
 };
@@ -84,7 +84,7 @@ pub fn parse_number(input: &str) -> IResult<&str, AWKFloat> {
             |(val, e): (f64, Option<f64>)| -> AWKFloat {
                 let e = 10_f64.powf(e.unwrap_or(0.0));
                 return val * e;
-            }
+            },
         ),
         map(
             // parse int sintax
@@ -94,10 +94,10 @@ pub fn parse_number(input: &str) -> IResult<&str, AWKFloat> {
                     Some(e) => {
                         let e = 10f64.powf(e);
                         val * e
-                    },
+                    }
                     None => val,
                 }
-            }
+            },
         ),
     ))(input)
 }
