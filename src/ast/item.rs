@@ -55,14 +55,15 @@ fn parse_pattern(input: &str) -> IResult<&str, AWKPattern> {
 }
 
 fn parse_normal_pattern(_input: &str) -> IResult<&str, AWKPattern> {
-    unimplemented!()
+    todo!()
 }
 
 fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
     let (input, tag) = alt((tag("BEGIN"), tag("END")))(input)?;
     let tag = match tag {
         "BEGIN" => AWKPattern::Begin,
-        _ => AWKPattern::End,
+        "END" => AWKPattern::End,
+        _ => panic!(),
     };
     return Ok((input, tag));
 }
