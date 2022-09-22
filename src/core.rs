@@ -112,7 +112,7 @@ impl AWKCore {
             print!(
                 "{}{}",
                 if s { " " } else { "" },
-                self.to_awkstr(self.eval_awkexpr(expr))
+                to_awkstr(self.eval_awkexpr(expr))
             );
             s = true;
         }
@@ -139,8 +139,8 @@ impl AWKCore {
         left: &Box<AWKExpr>,
         right: &Box<AWKExpr>,
     ) -> AWKVal {
-        let left = self.to_awknum(self.eval_awkexpr(left));
-        let right = self.to_awknum(self.eval_awkexpr(right));
+        let left = to_awknum(self.eval_awkexpr(left));
+        let right = to_awknum(self.eval_awkexpr(right));
         return AWKVal::Num(match op {
             AWKOperation::Add => left + right,
             AWKOperation::Sub => left - right,
@@ -165,22 +165,20 @@ impl AWKCore {
 }
 
 // AWKValue -> AWKNum / AWKStr
-impl AWKCore {
-    fn to_awkstr(&self, value: AWKVal) -> AWKStr {
-        match value {
-            AWKVal::Num(n) => n.to_string(),
-            AWKVal::Str(s) => s.clone(),
-        }
+fn to_awkstr(value: AWKVal) -> AWKStr {
+    match value {
+        AWKVal::Num(n) => n.to_string(),
+        AWKVal::Str(s) => s.clone(),
     }
+}
 
-    fn to_awknum(&self, value: AWKVal) -> AWKFloat {
-        use crate::ast::number::parse_number;
-        match value {
-            AWKVal::Num(n) => n,
-            AWKVal::Str(s) => match parse_number(&s) {
-                Ok((_, n)) => n,
-                Err(_) => 0.0,
-            },
-        }
+fn to_awknum(value: AWKVal) -> AWKFloat {
+    use crate::ast::number::parse_number;
+    match value {
+        AWKVal::Num(n) => n,
+        AWKVal::Str(s) => match parse_number(&s) {
+            Ok((_, n)) => n,
+            Err(_) => 0.0,
+        },
     }
 }
