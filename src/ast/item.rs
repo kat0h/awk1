@@ -54,10 +54,6 @@ fn parse_pattern(input: &str) -> IResult<&str, AWKPattern> {
     parse_special_pattern(input)
 }
 
-fn parse_normal_pattern(_input: &str) -> IResult<&str, AWKPattern> {
-    todo!()
-}
-
 fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
     let (input, tag) = alt((tag("BEGIN"), tag("END")))(input)?;
     let tag = match tag {

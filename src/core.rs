@@ -9,32 +9,15 @@ use std::io;
 
 use crate::ast::def::*;
 
-#[derive(Debug, PartialEq)]
-struct AWKFields {
-    fields: Vec<String>,
-}
-
-impl AWKFields {
-    fn nf(&self) -> usize {
-        self.fields.len()
-    }
-    fn get_field(&self, n: usize) -> Result<String, ()> {
-        if n == 0 {
-            Ok(self.fields.join(" "))
-        } else if (1 <= n) && (n <= self.nf()) {
-            Ok(self.fields[n - 1].clone())
-        } else {
-            Err(())
-        }
-    }
-}
+mod env;
+use env::AWKEnv;
 
 #[derive(Debug, PartialEq)]
 pub struct AWKCore {
+    // AST
     program: AWKProgram,
     // environment
-    fields: AWKFields,
-    nr: i64, // number of records
+    env: AWKEnv,
 }
 
 impl AWKCore {
@@ -42,8 +25,7 @@ impl AWKCore {
         return AWKCore {
             program,
             // environment
-            fields: AWKFields { fields: vec![] },
-            nr: 0,
+            env: AWKEnv::new(),
         };
     }
 
@@ -56,7 +38,6 @@ impl AWKCore {
     fn read_line_and_exec_program(&mut self) {
         // TODO: IF AWKProgram has BEGIN or END pattern only, Skip main loop
         loop {
-            self.nr += 1;
             // Read one line from stdin
             let mut line = String::new();
             if io::stdin()
@@ -64,14 +45,7 @@ impl AWKCore {
                 .expect("Failed to read line.")
                 != 0
             {
-                self.fields = AWKFields {
-                    fields: line
-                        .trim()
-                        .split_whitespace()
-                        .map(|f| f.to_string())
-                        .collect(),
-                };
-
+                self.env.set_field(&line);
                 for i in &self.program.item_list {
                     match i {
                         AWKItem::PatternAction(pattern_action) => {
@@ -186,7 +160,7 @@ impl AWKCore {
             AWKVal::Num(n) => n as usize,
             AWKVal::Str(_) => todo!(),
         };
-        AWKVal::Str(self.fields.get_field(n as usize).unwrap())
+        AWKVal::Str(self.env.get_field(n as usize).unwrap())
     }
 }
 
