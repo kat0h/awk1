@@ -93,8 +93,8 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
             tuple((char('$'), expr4)),
             |(_, record): (char, Box<AWKExpr>)| -> Box<AWKExpr> {
                 Box::new(AWKExpr::FieldReference(record))
-            }
-        )
+            },
+        ),
     ))(input)
 }
 

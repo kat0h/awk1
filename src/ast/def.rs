@@ -43,7 +43,7 @@ pub enum AWKExpr {
         left: Box<AWKExpr>,
         right: Box<AWKExpr>,
     },
-    FieldReference(Box<AWKExpr>)
+    FieldReference(Box<AWKExpr>),
 }
 
 #[derive(Debug, PartialEq)]
