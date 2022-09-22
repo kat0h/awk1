@@ -85,7 +85,21 @@ fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
+// field reference
 fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    alt((
+        expr4,
+        map(
+            tuple((char('$'), expr4)),
+            |(_, record): (char, Box<AWKExpr>)| -> Box<AWKExpr> {
+                Box::new(AWKExpr::FieldReference(record))
+            }
+        )
+    ))(input)
+}
+
+// grouping ()
+fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((value, delimited(char('('), expr1, char(')'))))(input)
 }
 

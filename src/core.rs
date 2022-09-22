@@ -33,16 +33,17 @@ impl AWKFields {
 pub struct AWKCore {
     program: AWKProgram,
     // environment
+    fields: AWKFields,
     nr: i64, // number of records
-    nf: i64, // number of fields
 }
 
 impl AWKCore {
     pub fn new_core(program: AWKProgram) -> AWKCore {
         return AWKCore {
             program,
+            // environment
+            fields: AWKFields { fields: vec![] },
             nr: 0,
-            nf: 0,
         };
     }
 
@@ -63,14 +64,13 @@ impl AWKCore {
                 .expect("Failed to read line.")
                 != 0
             {
-                let fields = AWKFields {
+                self.fields = AWKFields {
                     fields: line
                         .trim()
                         .split_whitespace()
                         .map(|f| f.to_string())
                         .collect(),
                 };
-                self.nf = fields.nf() as i64;
 
                 for i in &self.program.item_list {
                     match i {
@@ -154,6 +154,7 @@ impl AWKCore {
             AWKExpr::BinaryOperation { op, left, right } => {
                 self.eval_binary_operation(op, left, right)
             }
+            AWKExpr::FieldReference(reference) => self.eval_fieldreference(reference),
         }
     }
 
@@ -178,6 +179,14 @@ impl AWKCore {
                 left / right
             }
         });
+    }
+
+    fn eval_fieldreference(&self, reference: &Box<AWKExpr>) -> AWKVal {
+        let n = match self.eval_awkexpr(&reference) {
+            AWKVal::Num(n) => n as usize,
+            AWKVal::Str(_) => todo!(),
+        };
+        AWKVal::Str(self.fields.get_field(n as usize).unwrap())
     }
 }
 
