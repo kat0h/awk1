@@ -32,6 +32,7 @@ pub enum AWKPattern {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKStat {
+    Expr(Box<AWKExpr>),
     Print(AWKPrint),
 }
 
@@ -59,7 +60,7 @@ pub enum AWKOperation {
 pub enum AWKVal {
     Num(AWKFloat),
     Str(AWKStr),
-    None
+    None,
 }
 
 pub type AWKStr = String;

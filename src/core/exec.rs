@@ -7,7 +7,7 @@
 
 use crate::{
     ast::def::*,
-    core::{eval_expr::eval_awkexpr, util::*, AWKEnv},
+    core::{eval_expr::eval_awkexpr, AWKEnv},
 };
 use std::io;
 
@@ -22,7 +22,7 @@ pub fn read_line_and_exec_program(program: &AWKProgram, env: &mut AWKEnv) {
             != 0
         {
             env.set_field(&line);
-            env.set_value("NR", &AWKVal::Num(env.get_value("NR").to_float() + 1.0));
+            env.set_value("NR", &env.get_value("NR").add(&AWKVal::Num(1.0)));
 
             for i in &program.item_list {
                 match i {
@@ -77,6 +77,9 @@ pub fn exec_awkaction(actions: &Vec<AWKStat>, env: &mut AWKEnv) {
     for statement in actions {
         match statement {
             AWKStat::Print(awkprint) => exec_awkprint(&awkprint, env),
+            AWKStat::Expr(expr) => {
+                eval_awkexpr(expr, env);
+            }
         };
     }
 }

@@ -29,3 +29,18 @@ impl AWKVal {
         }
     }
 }
+
+impl AWKVal {
+    pub fn add(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Num(self.to_float() + val.to_float())
+    }
+    pub fn sub(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Num(self.to_float() - val.to_float())
+    }
+    pub fn mul(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Num(self.to_float() * val.to_float())
+    }
+    pub fn div(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Num(self.to_float() / val.to_float())
+    }
+}

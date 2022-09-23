@@ -24,18 +24,18 @@ fn eval_binary_operation(
     right: &Box<AWKExpr>,
     env: &mut AWKEnv,
 ) -> AWKVal {
-    let left = eval_awkexpr(left, env).to_float();
-    let right = eval_awkexpr(right, env).to_float();
+    let left = eval_awkexpr(left, env);
+    let right = eval_awkexpr(right, env);
     return AWKVal::Num(match op {
-        AWKOperation::Add => left + right,
-        AWKOperation::Sub => left - right,
-        AWKOperation::Mul => left * right,
+        AWKOperation::Add => left.add(&right).to_float(),
+        AWKOperation::Sub => left.sub(&right).to_float(),
+        AWKOperation::Mul => left.mul(&right).to_float(),
         AWKOperation::Div => {
-            if right == 0.0 {
+            if right.to_float() == 0.0 {
                 println!("divisition by zero");
                 todo!();
-            }
-            left / right
+            };
+            left.div(&right).to_float()
         }
     });
 }
