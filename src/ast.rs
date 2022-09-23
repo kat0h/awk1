@@ -8,6 +8,7 @@
 pub mod def;
 pub mod expr;
 pub mod item;
+pub mod name;
 pub mod number;
 pub mod print_stmt;
 pub mod program;

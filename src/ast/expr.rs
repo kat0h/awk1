@@ -8,6 +8,7 @@
 use crate::ast::{
     def::{AWKExpr, AWKVal},
     value::parse_value,
+    name::parse_name
 };
 use nom::{
     branch::alt,
@@ -100,7 +101,14 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 // grouping ()
 fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    alt((value, delimited(char('('), expr1, char(')'))))(input)
+    alt((value_or_name, delimited(char('('), expr1, char(')'))))(input)
+}
+
+fn value_or_name(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    alt((
+        map(parse_name, |e: AWKExpr| -> Box<AWKExpr> {Box::new(e)}),
+        value
+    ))(input)
 }
 
 fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {

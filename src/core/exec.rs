@@ -20,6 +20,8 @@ pub fn read_line_and_exec_program(program: &AWKProgram, env: &mut AWKEnv) {
             != 0
         {
             env.set_field(&line);
+            env.set_value("NR", &AWKVal::Num(to_awknum(env.get_value("NR")) + 1.0));
+
             for i in &program.item_list {
                 match i {
                     AWKItem::PatternAction(pattern_action) => {
@@ -97,6 +99,7 @@ pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
         AWKExpr::Value(value) => value.clone(),
         AWKExpr::BinaryOperation { op, left, right } => eval_binary_operation(op, left, right, env),
         AWKExpr::FieldReference(reference) => eval_fieldreference(reference, env),
+        AWKExpr::Name(name) => eval_awkname(&name, env)
     }
 }
 
@@ -129,6 +132,10 @@ pub fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal
         AWKVal::Str(_) => todo!(),
     };
     AWKVal::Str(env.get_field(n as usize).unwrap())
+}
+
+pub fn eval_awkname(name: &str, env: &mut AWKEnv) -> AWKVal {
+    env.get_value(name)
 }
 
 // AWKValue -> AWKNum / AWKStr

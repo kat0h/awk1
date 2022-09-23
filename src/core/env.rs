@@ -37,4 +37,14 @@ impl AWKEnv {
             Err(())
         }
     }
+
+    pub fn set_value(&mut self, name: &str, val: &AWKVal) {
+        self.env.insert(name.to_string(), val.clone());
+    }
+    pub fn get_value(&self, name: &str) -> AWKVal {
+        match self.env.get(name) {
+            Some(v) => v.clone(),
+            None => AWKVal::Str("".to_string())
+        }
+    }
 }

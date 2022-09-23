@@ -38,6 +38,7 @@ pub enum AWKStat {
 #[derive(Debug, PartialEq)]
 pub enum AWKExpr {
     Value(AWKVal),
+    Name(String),
     BinaryOperation {
         op: AWKOperation,
         left: Box<AWKExpr>,
