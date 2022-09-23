@@ -25,4 +25,3 @@ pub fn to_awknum(value: AWKVal) -> AWKFloat {
         },
     }
 }
-

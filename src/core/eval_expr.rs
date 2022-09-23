@@ -7,10 +7,7 @@
 
 use crate::{
     ast::def::*,
-    core::{
-        util::*,
-        env::AWKEnv,
-    }
+    core::{env::AWKEnv, util::*},
 };
 
 // AWKExpr
@@ -19,7 +16,7 @@ pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
         AWKExpr::Value(value) => value.clone(),
         AWKExpr::BinaryOperation { op, left, right } => eval_binary_operation(op, left, right, env),
         AWKExpr::FieldReference(reference) => eval_fieldreference(reference, env),
-        AWKExpr::Name(name) => eval_awkname(&name, env)
+        AWKExpr::Name(name) => eval_awkname(&name, env),
     }
 }
 

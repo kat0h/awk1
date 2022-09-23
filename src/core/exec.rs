@@ -7,11 +7,7 @@
 
 use crate::{
     ast::def::*,
-    core::{
-        AWKEnv,
-        util::*,
-        eval_expr::eval_awkexpr
-    },
+    core::{eval_expr::eval_awkexpr, util::*, AWKEnv},
 };
 use std::io;
 
@@ -98,4 +94,3 @@ pub fn exec_awkprint(awkprint: &AWKPrint, env: &mut AWKEnv) {
     }
     println!();
 }
-
