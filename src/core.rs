@@ -9,6 +9,7 @@ mod env;
 mod eval_expr;
 mod exec;
 mod util;
+mod awkval;
 
 use crate::ast::def::AWKProgram;
 use env::AWKEnv;

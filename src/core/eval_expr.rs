@@ -5,10 +5,7 @@
  *   Evaluate AWKExpr
  */
 
-use crate::{
-    ast::def::*,
-    core::{env::AWKEnv, util::*},
-};
+use crate::{ast::def::*, core::env::AWKEnv};
 
 // AWKExpr
 pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
@@ -27,8 +24,8 @@ fn eval_binary_operation(
     right: &Box<AWKExpr>,
     env: &mut AWKEnv,
 ) -> AWKVal {
-    let left = to_awknum(eval_awkexpr(left, env));
-    let right = to_awknum(eval_awkexpr(right, env));
+    let left = eval_awkexpr(left, env).to_float();
+    let right = eval_awkexpr(right, env).to_float();
     return AWKVal::Num(match op {
         AWKOperation::Add => left + right,
         AWKOperation::Sub => left - right,
@@ -44,7 +41,7 @@ fn eval_binary_operation(
 }
 
 fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {
-    let n = to_awknum(eval_awkexpr(&reference, env)) as usize;
+    let n = eval_awkexpr(&reference, env).to_float() as usize;
     AWKVal::Str(env.get_field(n as usize).unwrap())
 }
 

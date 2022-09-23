@@ -22,7 +22,7 @@ pub fn read_line_and_exec_program(program: &AWKProgram, env: &mut AWKEnv) {
             != 0
         {
             env.set_field(&line);
-            env.set_value("NR", &AWKVal::Num(to_awknum(env.get_value("NR")) + 1.0));
+            env.set_value("NR", &AWKVal::Num(env.get_value("NR").to_float() + 1.0));
 
             for i in &program.item_list {
                 match i {
@@ -88,7 +88,7 @@ pub fn exec_awkprint(awkprint: &AWKPrint, env: &mut AWKEnv) {
         print!(
             "{}{}",
             if s { " " } else { "" },
-            to_awkstr(eval_awkexpr(expr, env))
+            eval_awkexpr(expr, env).to_str()
         );
         s = true;
     }
