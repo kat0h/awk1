@@ -12,8 +12,6 @@
 mod ast;
 mod core;
 
-use crate::core::AWKCore;
-
 fn main() {
     mainloop();
 }
@@ -36,7 +34,5 @@ fn mainloop() {
         return;
     }
     // executable program
-    let mut core = AWKCore::new_core(parsed_program.unwrap().1);
-
-    core.exec_program();
+    core::exec_program(&parsed_program.unwrap().1);
 }
