@@ -13,7 +13,7 @@ use crate::ast::{
 use nom::{branch::alt, combinator::map, IResult};
 
 pub fn parse_statement(input: &str) -> IResult<&str, AWKStat> {
-    alt((parse_expr_stmt, parse_print_stmt))(input)
+    alt((parse_print_stmt, parse_expr_stmt))(input)
 }
 
 pub fn parse_expr_stmt(input: &str) -> IResult<&str, AWKStat> {

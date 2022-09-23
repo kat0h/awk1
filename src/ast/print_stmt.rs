@@ -7,18 +7,19 @@
 
 use nom::{
     branch::alt,
-    bytes::complete::tag,
     character::complete::char,
-    combinator::{map, opt},
+    combinator::{map, opt, map_res},
     multi::separated_list1,
     sequence::{delimited, tuple},
-    IResult,
+    IResult, error::ErrorKind,
 };
 
 use crate::ast::{
     def::{AWKExpr, AWKPrint, AWKStat},
     expr::parse_expr,
 };
+
+use super::name::parse_name;
 
 pub fn parse_print_stmt(input: &str) -> IResult<&str, AWKStat> {
     map(parse_print, |print: AWKPrint| -> AWKStat {
@@ -29,7 +30,16 @@ pub fn parse_print_stmt(input: &str) -> IResult<&str, AWKStat> {
 // simple_print_statement
 fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
     let (input, (_, exprlist)) = tuple((
-        tag("print"),
+        map_res(
+            parse_name,
+            |name: String| -> Result<&str, ErrorKind> {
+                if &name == "print" {
+                    Ok("print")
+                } else {
+                    Err(ErrorKind::MapRes)
+                }
+            }
+        ),
         map(
             opt(alt((
                 delimited(char('('), parse_print_expr_list, char(')')),
@@ -71,15 +81,6 @@ fn test_parse_print() {
             }
         )),
         parse_print("print(123,\"456\")")
-    );
-    assert_eq!(
-        Ok((
-            "",
-            AWKPrint {
-                exprlist: parse_print_expr_list("123,\"456\"").unwrap().1
-            }
-        )),
-        parse_print("print123,\"456\"")
     );
     assert_eq!(
         Ok(("", AWKPrint { exprlist: vec![] })),

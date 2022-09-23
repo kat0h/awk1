@@ -7,7 +7,7 @@
 
 use crate::ast::{
     def::{AWKExpr, AWKVal},
-    name::parse_name,
+    name::parse_variable_name,
     value::parse_value,
 };
 use nom::{
@@ -106,7 +106,7 @@ fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 fn value_or_name(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((
-        map(parse_name, |e: AWKExpr| -> Box<AWKExpr> { Box::new(e) }),
+        map(parse_variable_name, |e: AWKExpr| -> Box<AWKExpr> { Box::new(e) }),
         value,
     ))(input)
 }
