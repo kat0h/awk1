@@ -12,6 +12,7 @@ pub fn to_awkstr(value: AWKVal) -> AWKStr {
     match value {
         AWKVal::Num(n) => n.to_string(),
         AWKVal::Str(s) => s.clone(),
+        AWKVal::None => "".to_string()
     }
 }
 
@@ -23,5 +24,6 @@ pub fn to_awknum(value: AWKVal) -> AWKFloat {
             Ok((_, n)) => n,
             Err(_) => 0.0,
         },
+        AWKVal::None => 0.0
     }
 }

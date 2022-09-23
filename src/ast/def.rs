@@ -59,6 +59,7 @@ pub enum AWKOperation {
 pub enum AWKVal {
     Num(AWKFloat),
     Str(AWKStr),
+    None
 }
 
 pub type AWKStr = String;

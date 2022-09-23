@@ -44,10 +44,7 @@ fn eval_binary_operation(
 }
 
 fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {
-    let n = match eval_awkexpr(&reference, env) {
-        AWKVal::Num(n) => n as usize,
-        AWKVal::Str(_) => todo!(),
-    };
+    let n = to_awknum(eval_awkexpr(&reference, env)) as usize;
     AWKVal::Str(env.get_field(n as usize).unwrap())
 }
 

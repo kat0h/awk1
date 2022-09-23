@@ -44,7 +44,7 @@ impl AWKEnv {
     pub fn get_value(&self, name: &str) -> AWKVal {
         match self.env.get(name) {
             Some(v) => v.clone(),
-            None => AWKVal::Str("".to_string()),
+            None => AWKVal::None,
         }
     }
 }
