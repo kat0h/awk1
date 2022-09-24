@@ -1,5 +1,5 @@
 [package]
-name = "awk_rust"
+name = "rusty_awk"
 version = "0.1.0"
 edition = "2021"
 

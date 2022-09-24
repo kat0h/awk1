@@ -25,16 +25,16 @@ impl AWKEnv {
         self.fields = s.trim().split_whitespace().map(|f| f.to_string()).collect();
     }
     pub fn set_field_n(&mut self, n: usize, s: &AWKVal) {
-        if n<=0 {
+        if n <= 0 {
             // TODO: Error Handling
             panic!();
         };
         if self.fields.len() < n {
-            for _ in 1..=(n-self.fields.len()) {
+            for _ in 1..=(n - self.fields.len()) {
                 self.fields.push("".to_string());
-            };
+            }
         };
-        self.fields[n-1] = s.to_str();
+        self.fields[n - 1] = s.to_str();
     }
     pub fn get_field(&self, n: usize) -> Result<String, ()> {
         if n == 0 {
