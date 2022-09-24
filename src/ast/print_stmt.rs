@@ -8,10 +8,11 @@
 use nom::{
     branch::alt,
     character::complete::char,
-    combinator::{map, opt, map_res},
+    combinator::{map, map_res, opt},
+    error::ErrorKind,
     multi::separated_list1,
     sequence::{delimited, tuple},
-    IResult, error::ErrorKind,
+    IResult,
 };
 
 use crate::ast::{
@@ -30,16 +31,13 @@ pub fn parse_print_stmt(input: &str) -> IResult<&str, AWKStat> {
 // simple_print_statement
 fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
     let (input, (_, exprlist)) = tuple((
-        map_res(
-            parse_name,
-            |name: String| -> Result<&str, ErrorKind> {
-                if &name == "print" {
-                    Ok("print")
-                } else {
-                    Err(ErrorKind::MapRes)
-                }
+        map_res(parse_name, |name: String| -> Result<&str, ErrorKind> {
+            if &name == "print" {
+                Ok("print")
+            } else {
+                Err(ErrorKind::MapRes)
             }
-        ),
+        }),
         map(
             opt(alt((
                 delimited(char('('), parse_print_expr_list, char(')')),

@@ -46,6 +46,16 @@ pub enum AWKExpr {
         right: Box<AWKExpr>,
     },
     FieldReference(Box<AWKExpr>),
+    Assign {
+        lval: AWKLval,
+        expr: Box<AWKExpr>,
+    },
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AWKLval {
+    Name(String),
+    Field(Box<AWKExpr>),
 }
 
 #[derive(Debug, PartialEq)]

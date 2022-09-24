@@ -29,7 +29,8 @@ pub fn read_line_and_exec_program(program: &AWKProgram, env: &mut AWKEnv) {
                     AWKItem::PatternAction(pattern_action) => {
                         match pattern_action.pattern {
                             AWKPattern::Always => exec_awkaction(&pattern_action.action, env),
-                            _ => todo!(),
+                            AWKPattern::Begin => (),
+                            AWKPattern::End => (),
                         };
                     }
                 };

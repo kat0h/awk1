@@ -9,22 +9,31 @@ use crate::ast::def::AWKExpr;
 use nom::{
     character::complete::one_of,
     combinator::{map, map_res, opt},
+    error::ErrorKind,
     multi::many0,
     sequence::tuple,
-    IResult, error::ErrorKind,
+    IResult,
 };
 
-pub fn parse_variable_name(input: &str) -> IResult<&str, AWKExpr> {
-    map_res(
-        parse_name,
-        |s: String| -> Result<AWKExpr, _> {
-            if !is_awk_reserved_name(&s) {
-                return Ok(AWKExpr::Name(s));
-            } else {
-                return Err(ErrorKind::MapRes);
-            }
-        },
-    )(input)
+// TODO: Refactor
+pub fn parse_variable_name_expr(input: &str) -> IResult<&str, AWKExpr> {
+    map_res(parse_name, |s: String| -> Result<AWKExpr, _> {
+        if !is_awk_reserved_name(&s) {
+            return Ok(AWKExpr::Name(s));
+        } else {
+            return Err(ErrorKind::MapRes);
+        }
+    })(input)
+}
+
+pub fn parse_variable_name_string(input: &str) -> IResult<&str, String> {
+    map_res(parse_name, |s: String| -> Result<String, _> {
+        if !is_awk_reserved_name(&s) {
+            return Ok(s);
+        } else {
+            return Err(ErrorKind::MapRes);
+        }
+    })(input)
 }
 
 pub fn parse_name(input: &str) -> IResult<&str, String> {
@@ -57,7 +66,7 @@ pub fn is_awk_reserved_name(name: &str) -> bool {
 #[test]
 fn test_parse_name() {
     assert_eq!(
-        parse_variable_name("_unChi1233"),
+        parse_variable_name_expr("_unChi1233"),
         Ok(("", AWKExpr::Name("_unChi1233".to_string())))
     )
 }

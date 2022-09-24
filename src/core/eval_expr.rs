@@ -14,6 +14,7 @@ pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
         AWKExpr::BinaryOperation { op, left, right } => eval_binary_operation(op, left, right, env),
         AWKExpr::FieldReference(reference) => eval_fieldreference(reference, env),
         AWKExpr::Name(name) => eval_awkname(&name, env),
+        AWKExpr::Assign { lval, expr } => eval_assign(lval, expr, env),
     }
 }
 
@@ -47,4 +48,16 @@ fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {
 
 fn eval_awkname(name: &str, env: &mut AWKEnv) -> AWKVal {
     env.get_value(name)
+}
+
+fn eval_assign(lval: &AWKLval, expr: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {
+    let val = eval_awkexpr(&expr, env);
+    match lval {
+        AWKLval::Name(name) => env.set_value(&name, &val),
+        AWKLval::Field(e) => {
+            let f = eval_awkexpr(e, env).to_float() as usize;
+            env.set_field_n(f, &val);
+        }
+    };
+    val
 }

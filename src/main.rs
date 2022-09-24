@@ -33,6 +33,7 @@ fn mainloop() {
         dbg!(&parsed_program);
         return;
     }
+
     // executable program
     core::exec_program(&parsed_program.unwrap().1);
 }

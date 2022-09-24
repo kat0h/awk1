@@ -6,8 +6,8 @@
  */
 
 use crate::ast::{
-    def::{AWKExpr, AWKVal},
-    name::parse_variable_name,
+    def::{AWKExpr, AWKLval, AWKOperation, AWKVal},
+    name::{parse_variable_name_expr, parse_variable_name_string},
     value::parse_value,
 };
 use nom::{
@@ -19,16 +19,25 @@ use nom::{
     IResult,
 };
 
-use super::def::AWKOperation;
-
 pub fn parse_expr(input: &str) -> IResult<&str, Box<AWKExpr>> {
     expr1(input)
 }
 
-// + -
+// assignment
 fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
+    let field = map(tuple((char('$'), expr5)), |(_, expr)| AWKLval::Field(expr));
+    let lval = alt((val, field));
+    let assign = map(tuple((lval, char('='), expr1)), |(l, _, e)| {
+        Box::new(AWKExpr::Assign { lval: l, expr: e })
+    });
+    alt((assign, expr2))(input)
+}
+
+// + -
+fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
     map(
-        tuple((expr2, many0(tuple((alt((char('+'), char('-'))), expr2))))),
+        tuple((expr3, many0(tuple((alt((char('+'), char('-'))), expr3))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             // [1, 2, 3, 4] -> [[[1, 2], 3], 4]
             let mut i = expr;
@@ -57,9 +66,9 @@ fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 // * /
-fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
     map(
-        tuple((expr3, many0(tuple((alt((char('*'), char('/'))), expr3))))),
+        tuple((expr4, many0(tuple((alt((char('*'), char('/'))), expr4))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             let mut i = expr;
             for j in exprs {
@@ -87,11 +96,12 @@ fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 // field reference
-fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let field_reference = tuple((char('$'), expr5));
     alt((
-        expr4,
+        expr5,
         map(
-            tuple((char('$'), expr4)),
+            field_reference,
             |(_, record): (char, Box<AWKExpr>)| -> Box<AWKExpr> {
                 Box::new(AWKExpr::FieldReference(record))
             },
@@ -100,13 +110,15 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 // grouping ()
-fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((value_or_name, delimited(char('('), expr1, char(')'))))(input)
 }
 
 fn value_or_name(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((
-        map(parse_variable_name, |e: AWKExpr| -> Box<AWKExpr> { Box::new(e) }),
+        map(parse_variable_name_expr, |e: AWKExpr| -> Box<AWKExpr> {
+            Box::new(e)
+        }),
         value,
     ))(input)
 }
