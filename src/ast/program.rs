@@ -19,13 +19,11 @@ use nom::{
 };
 
 pub fn parse_program(input: &str) -> IResult<&str, AWKProgram> {
-    all_consuming(
-        delimited(
-            ws_nl_s,
-            map(parse_item_list, |item_list| AWKProgram { item_list }),
-            ws_nl_s
-        )
-    )(input)
+    all_consuming(delimited(
+        ws_nl_s,
+        map(parse_item_list, |item_list| AWKProgram { item_list }),
+        ws_nl_s,
+    ))(input)
 }
 
 // ITEMLIST := ITEM WSNLs TERMINATOR WSNLSs ITEM TERMINATOR
@@ -47,5 +45,8 @@ fn test_parse_item_list() {
     assert!(parse_item_list("BEGIN{}").is_ok());
     assert!(parse_item_list("BEGIN{}  ;  \n\n\n END{} \n;").is_ok());
     assert!(parse_item_list("BEGIN{}  ;  \n\n\n END{}").is_ok());
+    assert_eq!(
+        parse_item_list("BEGIN{}  ;  \n\n\n END{}"),
+        parse_item_list("BEGIN{};END{}")
+    );
 }
-
