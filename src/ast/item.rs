@@ -58,7 +58,6 @@ fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
 }
 
 fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
-    // 必ず;か\nを含み、任意の数の空白文字と;と\n
     fn parse_terminate(input: &str) -> IResult<&str, ()> {
         let (input, _) =
             tuple((wss, alt((char(';'), nl)), many0(alt((char(';'), ws, nl)))))(input)?;
@@ -73,7 +72,7 @@ fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
     delimited(
         char('{'),
         map(
-            tuple((opt(parse_terminate), parse_statement_list)),
+            tuple((opt(many0(alt((char(';'), ws, nl)))), parse_statement_list)),
             |(_, list): (_, Vec<AWKStat>)| list,
         ),
         char('}'),
@@ -124,5 +123,9 @@ fn test_parse_action() {
                 print(23)
                 ; }"#
         )
+    );
+    assert_eq!(
+        expect,
+        parse_action(r#"{  print("hoge"); 1+2 ; ; ; print(23) ; }"#)
     );
 }
