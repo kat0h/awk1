@@ -7,7 +7,7 @@
 
 use nom::{branch::alt, character::complete::char, multi::many0, IResult};
 
-fn ws(input: &str) -> IResult<&str, char> {
+pub fn ws(input: &str) -> IResult<&str, char> {
     alt((char(' '), char('\t')))(input)
 }
 
