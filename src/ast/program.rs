@@ -12,18 +12,18 @@ use crate::ast::{
 };
 use nom::{
     character::complete::char,
-    combinator::{all_consuming, map, opt},
+    combinator::{map, opt},
     multi::separated_list0,
     sequence::{delimited, tuple},
     IResult,
 };
 
 pub fn parse_program(input: &str) -> IResult<&str, AWKProgram> {
-    all_consuming(delimited(
+    delimited(
         ws_nl_s,
         map(parse_item_list, |item_list| AWKProgram { item_list }),
         ws_nl_s,
-    ))(input)
+    )(input)
 }
 
 // ITEMLIST := ITEM WSNLs TERMINATOR WSNLSs ITEM TERMINATOR
