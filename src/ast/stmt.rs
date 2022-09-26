@@ -16,6 +16,7 @@ pub fn parse_statement(input: &str) -> IResult<&str, AWKStat> {
     alt((parse_print_stmt, parse_expr_stmt))(input)
 }
 
+// expr(式)はステートメントとしても扱うことができます」
 pub fn parse_expr_stmt(input: &str) -> IResult<&str, AWKStat> {
     map(parse_expr, |e: Box<AWKExpr>| -> AWKStat {
         AWKStat::Expr(e)
