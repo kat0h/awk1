@@ -24,7 +24,7 @@ fn parse_expr_stmt(input: &str) -> IResult<&str, AWKStat> {
     })(input)
 }
 
-pub fn parse_action_stmt(input: &str) -> IResult<&str, AWKStat> {
+fn parse_action_stmt(input: &str) -> IResult<&str, AWKStat> {
     map(parse_action, |e: Vec<AWKStat>| -> AWKStat {
         AWKStat::Action(e)
     })(input)
