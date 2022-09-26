@@ -8,6 +8,7 @@
 use crate::ast::{
     def::{AWKExpr, AWKLval, AWKOperation, AWKVal},
     name::{parse_variable_name_expr, parse_variable_name_string},
+    util::*,
     value::parse_value,
 };
 use nom::{
@@ -23,21 +24,28 @@ pub fn parse_expr(input: &str) -> IResult<&str, Box<AWKExpr>> {
     expr1(input)
 }
 
-// assignment
+/// parse assignment expression
 fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    // 左辺値
     let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
-    let field = map(tuple((char('$'), expr5)), |(_, expr)| AWKLval::Field(expr));
-    let lval = alt((val, field));
-    let assign = map(tuple((lval, char('='), expr1)), |(l, _, e)| {
-        Box::new(AWKExpr::Assign { lval: l, expr: e })
+    let field = map(tuple((char('$'), wss, expr5)), |(_, _, expr)| {
+        AWKLval::Field(expr)
     });
+    let lval = alt((val, field));
+
+    let assign = map(
+        tuple((lval, delimited(wss, char('='), wss), expr1)),
+        |(l, _, e)| Box::new(AWKExpr::Assign { lval: l, expr: e }),
+    );
     alt((assign, expr2))(input)
 }
 
-// + -
+/// parse + -
 fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let symbol = delimited(wss, alt((char('+'), char('-'))), wss);
+
     map(
-        tuple((expr3, many0(tuple((alt((char('+'), char('-'))), expr3))))),
+        tuple((expr3, many0(tuple((symbol, expr3))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             // [1, 2, 3, 4] -> [[[1, 2], 3], 4]
             let mut i = expr;
@@ -65,10 +73,12 @@ fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-// * /
+/// parse * /
 fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let symbol = delimited(wss, alt((char('*'), char('/'))), wss);
+
     map(
-        tuple((expr4, many0(tuple((alt((char('*'), char('/'))), expr4))))),
+        tuple((expr4, many0(tuple((symbol, expr4))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             let mut i = expr;
             for j in exprs {
@@ -95,23 +105,26 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-// field reference
+/// parse field reference $expr
 fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    let field_reference = tuple((char('$'), expr5));
+    let field_reference = tuple((char('$'), wss, expr5));
     alt((
         expr5,
         map(
             field_reference,
-            |(_, record): (char, Box<AWKExpr>)| -> Box<AWKExpr> {
+            |(_, _, record): (char, _, Box<AWKExpr>)| -> Box<AWKExpr> {
                 Box::new(AWKExpr::FieldReference(record))
             },
         ),
     ))(input)
 }
 
-// grouping ()
+/// grouping (expr)
 fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    alt((value_or_name, delimited(char('('), expr1, char(')'))))(input)
+    alt((
+        value_or_name,
+        delimited(char('('), delimited(wss, expr1, wss), char(')')),
+    ))(input)
 }
 
 fn value_or_name(input: &str) -> IResult<&str, Box<AWKExpr>> {
@@ -131,5 +144,9 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 #[test]
 fn test_parse_expr() {
-    dbg!(parse_expr("123-444*(555-666)-2133").unwrap());
+    let mut all = nom::combinator::all_consuming(parse_expr);
+
+    assert!(all("123 - 444 * ( 555 - 666 ) - 2133").is_ok());
+    assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
+    assert_eq!(all("$1"), all("$                        1"));
 }
