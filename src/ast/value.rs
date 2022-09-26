@@ -26,4 +26,8 @@ fn test_parse_value() {
         Ok(("", AWKVal::Str(parse_string("\"hoge\"").unwrap().1))),
         parse_value("\"hoge\"")
     );
+
+    let mut all = nom::combinator::all_consuming(parse_value);
+    assert!(all("123 ").is_err());
+    assert!(all(" 123").is_err());
 }

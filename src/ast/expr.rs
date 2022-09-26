@@ -149,4 +149,7 @@ fn test_parse_expr() {
     assert!(all("123 - 444 * ( 555 - 666 ) - 2133").is_ok());
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
+
+    assert!(all(" 12 + 3").is_err());
+    assert!(all("12 + 3 ").is_err());
 }

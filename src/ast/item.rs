@@ -135,4 +135,8 @@ fn test_parse_action() {
                      print(23)  }"#
         )
     );
+
+    let mut all = nom::combinator::all_consuming(parse_action);
+    assert!(all(" { print(\"hoge\")}").is_err());
+    assert!(all("{ print(\"hoge\")} ").is_err());
 }

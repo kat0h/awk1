@@ -153,4 +153,8 @@ fn test_parse_number() {
         parse_number("2.2250738585072013e-308")
     );
     assert_eq!(Ok((",", 2.0)), parse_number("2,"));
+
+    let mut all = nom::combinator::all_consuming(parse_number);
+    assert!(all(" 123").is_err());
+    assert!(all("123 ").is_err());
 }

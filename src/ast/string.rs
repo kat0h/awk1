@@ -43,5 +43,9 @@ fn test_parse_string() {
     assert_eq!(
         Ok(("", "TEST \n \"THE\" \\ World!!!".to_string())),
         parse_string("\"TEST \\n \\\"THE\\\" \\\\ World!!!\"")
-    )
+    );
+
+    let mut all = nom::combinator::all_consuming(parse_string);
+    assert!(all(r#" "hoge""#).is_err());
+    assert!(all(r#""hoge" "#).is_err());
 }

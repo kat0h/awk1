@@ -106,19 +106,27 @@ fn test_parse_print() {
     );
     assert_eq!(expect, actual);
 
-    assert!(nom::combinator::all_consuming(parse_print)(
+    let mut all = nom::combinator::all_consuming(parse_print);
+    assert!(all(
         r#"print
     ()"#
     )
     .is_err());
-    assert!(nom::combinator::all_consuming(parse_print)(
+    assert!(all(
         r#"print (123
         ,3)"#
     )
     .is_err());
-    assert!(nom::combinator::all_consuming(parse_print)(
+    assert!(all(
         r#"print (123,3
         )"#
     )
     .is_err());
+
+
+    // パーサーが余計なスペースを処理していないかをチェック
+    assert!(all("print 2 ").is_err());
+    assert!(all(" print 2").is_err());
+    assert!(all("print (2) ").is_err());
+    assert!(all(" print (2)").is_err());
 }

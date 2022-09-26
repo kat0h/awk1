@@ -73,11 +73,18 @@ fn test_parse_name() {
     assert_eq!(
         parse_variable_name_expr("_unChi1233"),
         Ok(("", AWKExpr::Name("_unChi1233".to_string())))
-    )
+    );
+
+    let mut all = nom::combinator::all_consuming(parse_variable_name_expr);
+    assert!(all("print").is_err());
+
+    assert!(all(" hoge").is_err());
+    assert!(all("hoge ").is_err());
 }
 
 #[test]
 fn test_is_awk_reserved_name() {
     assert_eq!(true, is_awk_reserved_name("BEGIN"));
     assert_eq!(false, is_awk_reserved_name("myvar"));
+
 }
