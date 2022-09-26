@@ -9,7 +9,7 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::char,
-    combinator::{map,opt},
+    combinator::{map, opt},
     multi::{many0, separated_list0},
     sequence::{delimited, tuple},
     IResult,
