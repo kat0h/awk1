@@ -34,6 +34,7 @@ pub enum AWKPattern {
 pub enum AWKStat {
     Expr(Box<AWKExpr>),
     Print(AWKPrint),
+    Action(Vec<AWKStat>),
 }
 
 #[derive(Debug, PartialEq)]

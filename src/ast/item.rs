@@ -57,7 +57,7 @@ fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
     return Ok((input, tag));
 }
 
-fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
+pub fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
     fn parse_terminate(input: &str) -> IResult<&str, ()> {
         let (input, _) =
             tuple((wss, alt((char(';'), nl)), many0(alt((char(';'), ws, nl)))))(input)?;

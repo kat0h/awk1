@@ -86,5 +86,4 @@ fn test_parse_name() {
 fn test_is_awk_reserved_name() {
     assert_eq!(true, is_awk_reserved_name("BEGIN"));
     assert_eq!(false, is_awk_reserved_name("myvar"));
-
 }

@@ -81,6 +81,7 @@ pub fn exec_awkaction(actions: &Vec<AWKStat>, env: &mut AWKEnv) {
             AWKStat::Expr(expr) => {
                 eval_awkexpr(expr, env);
             }
+            AWKStat::Action(expr) => exec_awkaction(expr, env),
         };
     }
 }
