@@ -18,9 +18,9 @@ use nom::{
 use crate::ast::{
     def::{AWKExpr, AWKPrint, AWKStat},
     expr::parse_expr,
+    name::parse_name,
+    util::*,
 };
-
-use super::name::parse_name;
 
 pub fn parse_print_stmt(input: &str) -> IResult<&str, AWKStat> {
     map(parse_print, |print: AWKPrint| -> AWKStat {
@@ -30,33 +30,42 @@ pub fn parse_print_stmt(input: &str) -> IResult<&str, AWKStat> {
 
 // simple_print_statement
 fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
-    let (input, (_, exprlist)) = tuple((
-        map_res(parse_name, |name: String| -> Result<&str, ErrorKind> {
-            if &name == "print" {
-                Ok("print")
-            } else {
-                Err(ErrorKind::MapRes)
+    let parse_print_tag = map_res(parse_name, |name: String| -> Result<&str, ErrorKind> {
+        if &name == "print" {
+            Ok("print")
+        } else {
+            Err(ErrorKind::MapRes)
+        }
+    });
+
+    let parse_print_arguments = map(
+        opt(alt((
+            delimited(char('('), parse_print_expr_list, char(')')),
+            parse_print_expr_list,
+        ))),
+        |expr: Option<Vec<Box<AWKExpr>>>| -> Vec<Box<AWKExpr>> {
+            match expr {
+                Some(expr) => expr,
+                None => vec![],
             }
-        }),
-        map(
-            opt(alt((
-                delimited(char('('), parse_print_expr_list, char(')')),
-                parse_print_expr_list,
-            ))),
-            |expr: Option<Vec<Box<AWKExpr>>>| -> Vec<Box<AWKExpr>> {
-                match expr {
-                    Some(expr) => expr,
-                    None => vec![],
-                }
-            },
-        ),
-    ))(input)?;
+        },
+    );
+
+    // printと引数の間には空白文字のみ許可される
+    let (input, (_, _, exprlist)) = tuple((parse_print_tag, wss, parse_print_arguments))(input)?;
 
     Ok((input, AWKPrint { exprlist }))
 }
 
 fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<Box<AWKExpr>>> {
-    separated_list1(char(','), parse_expr)(input)
+    // print_expr_list : print_expr
+    //                 | print_expr_list ',' newline_opt print_expr
+    // カンマのあとに改行が入ることが許可されるが、カンマの前は空白のみしか許可されない
+    delimited(
+        wss,
+        separated_list1(tuple((wss, char(','), ws_nl_s)), parse_expr),
+        wss,
+    )(input)
 }
 
 #[test]
@@ -88,4 +97,28 @@ fn test_parse_print() {
         Ok(("()", AWKPrint { exprlist: vec![] })),
         parse_print("print()")
     );
+
+    let expect = parse_print("print(123,456)");
+
+    let actual = parse_print(
+        r#"print (   123,
+    456     )"#,
+    );
+    assert_eq!(expect, actual);
+
+    assert!(nom::combinator::all_consuming(parse_print)(
+        r#"print
+    ()"#
+    )
+    .is_err());
+    assert!(nom::combinator::all_consuming(parse_print)(
+        r#"print (123
+        ,3)"#
+    )
+    .is_err());
+    assert!(nom::combinator::all_consuming(parse_print)(
+        r#"print (123,3
+        )"#
+    )
+    .is_err());
 }
