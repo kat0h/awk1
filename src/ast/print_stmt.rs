@@ -40,7 +40,11 @@ fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
 
     let parse_print_arguments = map(
         opt(alt((
-            delimited(char('('), parse_print_expr_list, char(')')),
+            delimited(
+                char('('),
+                delimited(wss, parse_print_expr_list, wss),
+                char(')'),
+            ),
             parse_print_expr_list,
         ))),
         |expr: Option<Vec<Box<AWKExpr>>>| -> Vec<Box<AWKExpr>> {
@@ -61,11 +65,7 @@ fn parse_print_expr_list(input: &str) -> IResult<&str, Vec<Box<AWKExpr>>> {
     // print_expr_list : print_expr
     //                 | print_expr_list ',' newline_opt print_expr
     // カンマのあとに改行が入ることが許可されるが、カンマの前は空白のみしか許可されない
-    delimited(
-        wss,
-        separated_list1(tuple((wss, char(','), ws_nl_s)), parse_expr),
-        wss,
-    )(input)
+    separated_list1(tuple((wss, char(','), ws_nl_s)), parse_expr)(input)
 }
 
 #[test]

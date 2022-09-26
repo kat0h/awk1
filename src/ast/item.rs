@@ -65,7 +65,7 @@ fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
     }
     fn parse_statement_list(input: &str) -> IResult<&str, Vec<AWKStat>> {
         let (input, ret) = separated_list0(parse_terminate, parse_statement)(input)?;
-        let (input, _) = opt(parse_terminate)(input)?;
+        let (input, _) = opt(alt((parse_terminate, map(wss, |_| ()))))(input)?;
 
         Ok((input, ret))
     }
@@ -127,5 +127,12 @@ fn test_parse_action() {
     assert_eq!(
         expect,
         parse_action(r#"{  print("hoge"); 1+2 ; ; ; print(23) ; }"#)
+    );
+    assert_eq!(
+        expect,
+        parse_action(
+            r#"{  print("hoge"); 1+2  
+                     print(23)  }"#
+        )
     );
 }
