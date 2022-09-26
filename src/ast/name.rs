@@ -16,6 +16,7 @@ use nom::{
 };
 
 // TODO: Refactor
+/// AWKの変数名をパース。予約語を考慮。AWKExprとして返す
 pub fn parse_variable_name_expr(input: &str) -> IResult<&str, AWKExpr> {
     map_res(parse_name, |s: String| -> Result<AWKExpr, _> {
         if !is_awk_reserved_name(&s) {
@@ -26,6 +27,8 @@ pub fn parse_variable_name_expr(input: &str) -> IResult<&str, AWKExpr> {
     })(input)
 }
 
+/// AWKの変数名をパース
+/// 予約語に含まれている場合Errを返す
 pub fn parse_variable_name_string(input: &str) -> IResult<&str, String> {
     map_res(parse_name, |s: String| -> Result<String, _> {
         if !is_awk_reserved_name(&s) {
@@ -36,6 +39,7 @@ pub fn parse_variable_name_string(input: &str) -> IResult<&str, String> {
     })(input)
 }
 
+/// AWKの名前をパース 予約語は考慮しません
 pub fn parse_name(input: &str) -> IResult<&str, String> {
     map(
         tuple((
@@ -55,6 +59,7 @@ pub fn parse_name(input: &str) -> IResult<&str, String> {
     )(input)
 }
 
+/// 名前がAWKの予約語に含まれているかを判定
 pub fn is_awk_reserved_name(name: &str) -> bool {
     let list = [
         "BEGIN", "delete", "END", "function", "in", "printf", "break", "do", "exit", "getline",
