@@ -46,4 +46,7 @@ impl AWKVal {
     pub fn module(&self, val: &AWKVal) -> AWKVal {
         AWKVal::Num(self.to_float() % val.to_float())
     }
+    pub fn pow(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Num(self.to_float().powf(val.to_float()))
+    }
 }

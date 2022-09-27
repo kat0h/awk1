@@ -28,7 +28,7 @@ pub fn parse_expr(input: &str) -> IResult<&str, Box<AWKExpr>> {
 fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
     // 左辺値
     let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
-    let field = map(tuple((char('$'), wss, expr5)), |(_, _, expr)| {
+    let field = map(tuple((char('$'), wss, expr6)), |(_, _, expr)| {
         AWKLval::Field(expr)
     });
     let lval = alt((val, field));
@@ -112,11 +112,37 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-/// parse field reference $expr
+/// parse ^
 fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    let field_reference = tuple((char('$'), wss, expr5));
+    let symbol = delimited(wss, char('^'), wss);
+
+    map(
+        tuple((expr5, many0(tuple((symbol, expr5))))),
+        |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
+            let mut i = expr;
+            for j in exprs {
+                match j {
+                    ('^', k) => {
+                        i = Box::new(AWKExpr::BinaryOperation {
+                            op: AWKOperation::Pow,
+                            left: i,
+                            right: k,
+                        });
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            return i;
+        },
+    )(input)
+}
+
+
+/// parse field reference $expr
+fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let field_reference = tuple((char('$'), wss, expr6));
     alt((
-        expr5,
+        expr6,
         map(
             field_reference,
             |(_, _, record): (char, _, Box<AWKExpr>)| -> Box<AWKExpr> {
@@ -127,7 +153,7 @@ fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 /// grouping (expr)
-fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((
         value_or_name,
         delimited(char('('), delimited(wss, expr1, wss), char(')')),
@@ -153,7 +179,7 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 fn test_parse_expr() {
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024").is_ok());
+    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4").is_ok());
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
 

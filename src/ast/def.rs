@@ -65,7 +65,7 @@ pub enum AWKOperation {
     Sub, // -
     Mul, // *
     Div, // /
-    //Pow, // ^
+    Pow, // ^
     Mod, // %
 }
 
