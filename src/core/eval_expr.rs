@@ -38,6 +38,7 @@ fn eval_binary_operation(
             };
             left.div(&right).to_float()
         }
+        AWKOperation::Mod => left.module(&right).to_float(),
     });
 }
 

@@ -43,4 +43,7 @@ impl AWKVal {
     pub fn div(&self, val: &AWKVal) -> AWKVal {
         AWKVal::Num(self.to_float() / val.to_float())
     }
+    pub fn module(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Num(self.to_float() % val.to_float())
+    }
 }

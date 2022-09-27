@@ -75,7 +75,7 @@ fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 /// parse * /
 fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    let symbol = delimited(wss, alt((char('*'), char('/'))), wss);
+    let symbol = delimited(wss, alt((char('*'), char('/'), char('%'))), wss);
 
     map(
         tuple((expr4, many0(tuple((symbol, expr4))))),
@@ -97,7 +97,14 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
                             right: k,
                         })
                     }
-                    _ => panic!(),
+                    ('%', k) => {
+                        i = Box::new(AWKExpr::BinaryOperation {
+                            op: AWKOperation::Mod,
+                            left: i,
+                            right: k,
+                        })
+                    }
+                    _ => unreachable!(),
                 }
             }
             return i;
@@ -146,7 +153,7 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 fn test_parse_expr() {
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(all("123 - 444 * ( 555 - 666 ) - 2133").is_ok());
+    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024").is_ok());
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
 
