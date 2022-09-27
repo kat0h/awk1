@@ -37,7 +37,7 @@ pub enum AWKStat {
     Action(Vec<AWKStat>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum AWKExpr {
     Value(AWKVal),
     Name(String),
@@ -46,20 +46,20 @@ pub enum AWKExpr {
         left: Box<AWKExpr>,
         right: Box<AWKExpr>,
     },
-    FieldReference(Box<AWKExpr>),
+    Field(Box<AWKExpr>),
     Assign {
         lval: AWKLval,
         expr: Box<AWKExpr>,
     },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum AWKLval {
     Name(String),
     Field(Box<AWKExpr>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum AWKOperation {
     Add, // +
     Sub, // -

@@ -13,6 +13,7 @@ use crate::ast::{
 };
 use nom::{
     branch::alt,
+    bytes::complete::tag,
     character::complete::char,
     combinator::map,
     multi::many0,
@@ -33,9 +34,84 @@ fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
     });
     let lval = alt((val, field));
 
+    // cloneを排除する
+    fn lval2awkexpr(lval: &AWKLval) -> AWKExpr {
+        match lval {
+            AWKLval::Name(n) => AWKExpr::Name(n.to_string()),
+            AWKLval::Field(e) => AWKExpr::Field(e.clone()),
+        }
+    }
+
     let assign = map(
-        tuple((lval, delimited(wss, char('='), wss), expr1)),
-        |(l, _, e)| Box::new(AWKExpr::Assign { lval: l, expr: e }),
+        tuple((
+            lval,
+            delimited(
+                wss,
+                alt((
+                    tag("="),
+                    tag("+="),
+                    tag("-="),
+                    tag("*="),
+                    tag("/="),
+                    tag("^="),
+                    tag("%="),
+                )),
+                wss,
+            ),
+            expr1,
+        )),
+        |(l, assigntype, e)| match assigntype {
+            "=" => Box::new(AWKExpr::Assign { lval: l, expr: e }),
+            "+=" => Box::new(AWKExpr::Assign {
+                lval: l.clone(),
+                expr: Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Add,
+                    left: Box::new(lval2awkexpr(&l)),
+                    right: e,
+                }),
+            }),
+            "-=" => Box::new(AWKExpr::Assign {
+                lval: l.clone(),
+                expr: Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Sub,
+                    left: Box::new(lval2awkexpr(&l)),
+                    right: e,
+                }),
+            }),
+            "*=" => Box::new(AWKExpr::Assign {
+                lval: l.clone(),
+                expr: Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Mul,
+                    left: Box::new(lval2awkexpr(&l)),
+                    right: e,
+                }),
+            }),
+            "/=" => Box::new(AWKExpr::Assign {
+                lval: l.clone(),
+                expr: Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Div,
+                    left: Box::new(lval2awkexpr(&l)),
+                    right: e,
+                }),
+            }),
+            "^=" => Box::new(AWKExpr::Assign {
+                lval: l.clone(),
+                expr: Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Pow,
+                    left: Box::new(lval2awkexpr(&l)),
+                    right: e,
+                }),
+            }),
+            "%=" => Box::new(AWKExpr::Assign {
+                lval: l.clone(),
+                expr: Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Mod,
+                    left: Box::new(lval2awkexpr(&l)),
+                    right: e,
+                }),
+            }),
+            _ => unreachable!(),
+        },
     );
     alt((assign, expr2))(input)
 }
@@ -137,7 +213,6 @@ fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-
 /// parse field reference $expr
 fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let field_reference = tuple((char('$'), wss, expr6));
@@ -146,7 +221,7 @@ fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
         map(
             field_reference,
             |(_, _, record): (char, _, Box<AWKExpr>)| -> Box<AWKExpr> {
-                Box::new(AWKExpr::FieldReference(record))
+                Box::new(AWKExpr::Field(record))
             },
         ),
     ))(input)
@@ -179,7 +254,7 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 fn test_parse_expr() {
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4").is_ok());
+    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 )").is_ok());
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
 

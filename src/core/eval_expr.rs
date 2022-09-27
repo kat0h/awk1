@@ -12,7 +12,7 @@ pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
     match expr {
         AWKExpr::Value(value) => value.clone(),
         AWKExpr::BinaryOperation { op, left, right } => eval_binary_operation(op, left, right, env),
-        AWKExpr::FieldReference(reference) => eval_fieldreference(reference, env),
+        AWKExpr::Field(reference) => eval_fieldreference(reference, env),
         AWKExpr::Name(name) => eval_awkname(&name, env),
         AWKExpr::Assign { lval, expr } => eval_assign(lval, expr, env),
     }
