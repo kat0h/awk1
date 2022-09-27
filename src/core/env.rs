@@ -36,14 +36,14 @@ impl AWKEnv {
         };
         self.fields[n - 1] = s.to_str();
     }
-    pub fn get_field(&self, n: usize) -> Result<String, ()> {
+    pub fn get_field(&self, n: usize) -> Result<AWKVal, ()> {
         if n == 0 {
-            Ok(self.fields.join(" "))
+            Ok(AWKVal::Str(self.fields.join(" ")))
         } else if 1 <= n {
             if n <= self.fields.len() {
-                Ok(self.fields[n - 1].clone())
+                Ok(AWKVal::Str(self.fields[n - 1].clone()))
             } else {
-                Ok("".to_string())
+                Ok(AWKVal::Str("".to_string()))
             }
         } else {
             Err(())

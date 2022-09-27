@@ -16,16 +16,3 @@ pub mod stmt;
 pub mod string;
 pub mod util;
 pub mod value;
-
-/*
- * Expr : AWKNUMBER | AWKSTRING
- */
-
-/*
- *  paction : pattern '{' action '}'
- *  pattern : BEGIN
- *          | END
- *          |
- *  action  : print '(' expr ')'
- *          | print expr
-*/

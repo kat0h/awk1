@@ -51,6 +51,11 @@ pub enum AWKExpr {
         lval: AWKLval,
         expr: Box<AWKExpr>,
     },
+    IncDec {
+        is_post: bool,
+        is_inc: bool,
+        lval: AWKLval,
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]

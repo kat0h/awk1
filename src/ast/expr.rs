@@ -27,13 +27,6 @@ pub fn parse_expr(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 /// parse assignment expression
 fn expr1(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    // 左辺値
-    let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
-    let field = map(tuple((char('$'), wss, expr6)), |(_, _, expr)| {
-        AWKLval::Field(expr)
-    });
-    let lval = alt((val, field));
-
     // cloneを排除する
     fn lval2awkexpr(lval: &AWKLval) -> AWKExpr {
         match lval {
@@ -213,11 +206,33 @@ fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-/// parse field reference $expr
+/// post increment/decrement lval++ lval--
+/// i++ - i みたいなパターン
+// a----a a-----a a-- - -1とか
 fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    let field_reference = tuple((char('$'), wss, expr6));
+    let is_inc = map(
+        alt((tuple((wss, tag("++"))), tuple((wss, tag("--"))))),
+        |(_, symbol): (_, &str)| match symbol {
+            "++" => true,
+            "--" => false,
+            _ => unreachable!()
+        },
+    );
+    let incdec = map(tuple((lval, is_inc)), |(lval, is_inc): (AWKLval, bool)| {
+        Box::new(AWKExpr::IncDec {
+            is_inc,
+            is_post: true,
+            lval,
+        })
+    });
+    alt((incdec, expr6))(input)
+}
+
+/// parse field reference $expr
+fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let field_reference = tuple((char('$'), wss, expr7));
     alt((
-        expr6,
+        expr7,
         map(
             field_reference,
             |(_, _, record): (char, _, Box<AWKExpr>)| -> Box<AWKExpr> {
@@ -228,7 +243,7 @@ fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 /// grouping (expr)
-fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr7(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((
         value_or_name,
         delimited(char('('), delimited(wss, expr1, wss), char(')')),
@@ -250,11 +265,19 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
     })(input)
 }
 
+fn lval(input: &str) -> IResult<&str, AWKLval> {
+    let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
+    let field = map(tuple((char('$'), wss, expr7)), |(_, _, expr)| {
+        AWKLval::Field(expr)
+    });
+    alt((val, field))(input)
+}
+
 #[test]
 fn test_parse_expr() {
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 )").is_ok());
+    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 - a-- - 3)").is_ok());
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
 

@@ -5,6 +5,7 @@
  *   Evaluate AWKExpr
  */
 
+// TODO: LVALを透過的に扱える関数をenv.rsに生やす
 use crate::{ast::def::*, core::env::AWKEnv};
 
 // AWKExpr
@@ -15,6 +16,11 @@ pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
         AWKExpr::Field(reference) => eval_fieldreference(reference, env),
         AWKExpr::Name(name) => eval_awkname(&name, env),
         AWKExpr::Assign { lval, expr } => eval_assign(lval, expr, env),
+        AWKExpr::IncDec {
+            is_post,
+            is_inc,
+            lval,
+        } => eval_incdec(*is_post, *is_inc, lval, env),
     }
 }
 
@@ -45,7 +51,8 @@ fn eval_binary_operation(
 
 fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {
     let n = eval_awkexpr(&reference, env).to_float() as usize;
-    AWKVal::Str(env.get_field(n as usize).unwrap())
+    // TODO: handle Err
+    env.get_field(n as usize).unwrap()
 }
 
 fn eval_awkname(name: &str, env: &mut AWKEnv) -> AWKVal {
@@ -62,4 +69,46 @@ fn eval_assign(lval: &AWKLval, expr: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal 
         }
     };
     val
+}
+
+// TODO: REfactor
+fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) -> AWKVal {
+    let addval = AWKVal::Num(if is_inc { 1.0 } else { -1.0 });
+    if is_post {
+        // 返す値を取得
+        let ret = match lval {
+            AWKLval::Name(name) => env.get_value(&name).to_float(),
+            AWKLval::Field(e) => {
+                let f = eval_awkexpr(e, env).to_float() as usize;
+                // TODO: Error handling
+                env.get_field(f).unwrap().to_float()
+            }
+        };
+        // 加算or減算
+        match lval {
+            AWKLval::Name(name) => env.set_value(name, &env.get_value(name).add(&addval)),
+            AWKLval::Field(expr) =>  {
+                let f = eval_awkexpr(expr, env).to_float() as usize;
+                env.set_field_n(f, &env.get_field(f).unwrap().add(&addval))
+            }
+        };
+        AWKVal::Num(ret)
+    } else {
+        match lval {
+            AWKLval::Name(name) => env.set_value(name, &env.get_value(name).add(&addval)),
+            AWKLval::Field(expr) =>  {
+                let f = eval_awkexpr(expr, env).to_float() as usize;
+                env.set_field_n(f, &env.get_field(f).unwrap().add(&addval))
+            }
+        };
+        let ret = match lval {
+            AWKLval::Name(name) => env.get_value(&name).to_float(),
+            AWKLval::Field(e) => {
+                let f = eval_awkexpr(e, env).to_float() as usize;
+                // TODO: Error handling
+                env.get_field(f).unwrap().to_float()
+            }
+        };
+        AWKVal::Num(ret)
+    }
 }
