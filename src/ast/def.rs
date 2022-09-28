@@ -39,23 +39,34 @@ pub enum AWKStat {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKExpr {
+    // 値
     Value(AWKVal),
+    // 名前
     Name(String),
+    // 二項演算子
     BinaryOperation {
-        op: AWKOperation,
+        op: AWKBinaryOperation,
         left: Box<AWKExpr>,
         right: Box<AWKExpr>,
     },
+    // フィールドリファレンス
     Field(Box<AWKExpr>),
+    // 代入
     Assign {
         lval: AWKLval,
         expr: Box<AWKExpr>,
     },
+    // インクリメント・ディクリメント
     IncDec {
         is_post: bool,
         is_inc: bool,
         lval: AWKLval,
     },
+    // 単項演算子
+    UnaryOperation {
+        op: AWKUnaryOperation,
+        expr: Box<AWKExpr>,
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -65,13 +76,20 @@ pub enum AWKLval {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum AWKOperation {
+pub enum AWKBinaryOperation {
     Add, // +
     Sub, // -
     Mul, // *
     Div, // /
     Pow, // ^
     Mod, // %
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum AWKUnaryOperation {
+    Not,  // !
+    Plus, // +
+    Minus // -
 }
 
 #[derive(Debug, PartialEq, Clone)]

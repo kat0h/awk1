@@ -21,12 +21,13 @@ pub fn eval_awkexpr(expr: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
             is_inc,
             lval,
         } => eval_incdec(*is_post, *is_inc, lval, env),
+        AWKExpr::UnaryOperation { expr, op } => eval_unary_operation(expr, op, env),
     }
 }
 
 // error handring
 fn eval_binary_operation(
-    op: &AWKOperation,
+    op: &AWKBinaryOperation,
     left: &Box<AWKExpr>,
     right: &Box<AWKExpr>,
     env: &mut AWKEnv,
@@ -34,18 +35,18 @@ fn eval_binary_operation(
     let left = eval_awkexpr(left, env);
     let right = eval_awkexpr(right, env);
     return AWKVal::Num(match op {
-        AWKOperation::Add => left.add(&right).to_float(),
-        AWKOperation::Sub => left.sub(&right).to_float(),
-        AWKOperation::Mul => left.mul(&right).to_float(),
-        AWKOperation::Div => {
+        AWKBinaryOperation::Add => left.add(&right).to_float(),
+        AWKBinaryOperation::Sub => left.sub(&right).to_float(),
+        AWKBinaryOperation::Mul => left.mul(&right).to_float(),
+        AWKBinaryOperation::Div => {
             if right.to_float() == 0.0 {
                 println!("divisition by zero");
                 todo!();
             };
             left.div(&right).to_float()
         }
-        AWKOperation::Mod => left.module(&right).to_float(),
-        AWKOperation::Pow => left.pow(&right).to_float(),
+        AWKBinaryOperation::Mod => left.module(&right).to_float(),
+        AWKBinaryOperation::Pow => left.pow(&right).to_float(),
     });
 }
 
@@ -112,5 +113,14 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
             }
         };
         AWKVal::Num(ret)
+    }
+}
+
+fn eval_unary_operation(expr: &Box<AWKExpr>, op: &AWKUnaryOperation, env: &mut AWKEnv) -> AWKVal {
+    let val = eval_awkexpr(expr, env);
+    match op {
+        AWKUnaryOperation::Not => val.not(),
+        AWKUnaryOperation::Plus => val.plus(),
+        AWKUnaryOperation::Minus => val.minus(),
     }
 }

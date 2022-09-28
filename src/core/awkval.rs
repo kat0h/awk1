@@ -39,6 +39,7 @@ impl AWKVal {
 }
 
 impl AWKVal {
+    // 多倍長整数演算
     pub fn add(&self, val: &AWKVal) -> AWKVal {
         AWKVal::Num(self.to_float() + val.to_float())
     }
@@ -56,5 +57,14 @@ impl AWKVal {
     }
     pub fn pow(&self, val: &AWKVal) -> AWKVal {
         AWKVal::Num(self.to_float().powf(val.to_float()))
+    }
+    pub fn not(&self) -> AWKVal {
+        AWKVal::Num(if self.is_true() { 0.0 } else { 1.0 })
+    }
+    pub fn plus(&self) -> AWKVal {
+        AWKVal::Num(self.to_float())
+    }
+    pub fn minus(&self) -> AWKVal {
+        AWKVal::Num(self.to_float() * -1.0)
     }
 }
