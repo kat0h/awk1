@@ -50,9 +50,11 @@ fn eval_binary_operation(
 }
 
 fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {
+    // -1などは整数に変換される
+    // これは意図した動作ではない
     let n = eval_awkexpr(&reference, env).to_float() as usize;
     // TODO: handle Err
-    env.get_field(n as usize).unwrap()
+    env.get_field_n(n as usize).unwrap()
 }
 
 fn eval_awkname(name: &str, env: &mut AWKEnv) -> AWKVal {
@@ -81,7 +83,7 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
             AWKLval::Field(e) => {
                 let f = eval_awkexpr(e, env).to_float() as usize;
                 // TODO: Error handling
-                env.get_field(f).unwrap().to_float()
+                env.get_field_n(f).unwrap().to_float()
             }
         };
         // 加算or減算
@@ -89,7 +91,7 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
             AWKLval::Name(name) => env.set_value(name, &env.get_value(name).add(&addval)),
             AWKLval::Field(expr) =>  {
                 let f = eval_awkexpr(expr, env).to_float() as usize;
-                env.set_field_n(f, &env.get_field(f).unwrap().add(&addval))
+                env.set_field_n(f, &env.get_field_n(f).unwrap().add(&addval))
             }
         };
         AWKVal::Num(ret)
@@ -98,7 +100,7 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
             AWKLval::Name(name) => env.set_value(name, &env.get_value(name).add(&addval)),
             AWKLval::Field(expr) =>  {
                 let f = eval_awkexpr(expr, env).to_float() as usize;
-                env.set_field_n(f, &env.get_field(f).unwrap().add(&addval))
+                env.set_field_n(f, &env.get_field_n(f).unwrap().add(&addval))
             }
         };
         let ret = match lval {
@@ -106,7 +108,7 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
             AWKLval::Field(e) => {
                 let f = eval_awkexpr(e, env).to_float() as usize;
                 // TODO: Error handling
-                env.get_field(f).unwrap().to_float()
+                env.get_field_n(f).unwrap().to_float()
             }
         };
         AWKVal::Num(ret)

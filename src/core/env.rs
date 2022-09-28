@@ -36,7 +36,8 @@ impl AWKEnv {
         };
         self.fields[n - 1] = s.to_str();
     }
-    pub fn get_field(&self, n: usize) -> Result<AWKVal, ()> {
+    // err when field is less than -1
+    pub fn get_field_n(&self, n: usize) -> Result<AWKVal, ()> {
         if n == 0 {
             Ok(AWKVal::Str(self.fields.join(" ")))
         } else if 1 <= n {
