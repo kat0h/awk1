@@ -181,29 +181,26 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-/// parse ^
+/// parse ^ 右結合
 fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let symbol = delimited(wss, char('^'), wss);
 
-    map(
-        tuple((expr5, many0(tuple((symbol, expr5))))),
-        |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
-            let mut i = expr;
-            for j in exprs {
-                match j {
-                    ('^', k) => {
-                        i = Box::new(AWKExpr::BinaryOperation {
-                            op: AWKOperation::Pow,
-                            left: i,
-                            right: k,
-                        });
-                    }
-                    _ => unreachable!(),
-                }
-            }
-            return i;
-        },
-    )(input)
+    alt((
+        map(
+            tuple((
+                expr5,
+                map(tuple((symbol, expr4)), |(_, e): (_, Box<AWKExpr>)| e),
+            )),
+            |(l, r): (Box<AWKExpr>, Box<AWKExpr>)| {
+                Box::new(AWKExpr::BinaryOperation {
+                    op: AWKOperation::Pow,
+                    left: l,
+                    right: r,
+                })
+            },
+        ),
+        expr5,
+    ))(input)
 }
 
 fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
@@ -215,7 +212,7 @@ fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
             _ => unreachable!(),
         },
     );
-    let incdec = map(tuple((is_inc,lval )), |(is_inc,lval): (bool,AWKLval )| {
+    let incdec = map(tuple((is_inc, lval)), |(is_inc, lval): (bool, AWKLval)| {
         Box::new(AWKExpr::IncDec {
             is_inc,
             is_post: false,
@@ -296,7 +293,10 @@ fn lval(input: &str) -> IResult<&str, AWKLval> {
 fn test_parse_expr() {
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 - a-- - 3) + ++a").is_ok());
+    assert!(
+        all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 - a-- - 3) + ++a")
+            .is_ok()
+    );
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
 

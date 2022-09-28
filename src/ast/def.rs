@@ -55,7 +55,7 @@ pub enum AWKExpr {
         is_post: bool,
         is_inc: bool,
         lval: AWKLval,
-    }
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]

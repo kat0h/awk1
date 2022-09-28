@@ -89,7 +89,7 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
         // 加算or減算
         match lval {
             AWKLval::Name(name) => env.set_value(name, &env.get_value(name).add(&addval)),
-            AWKLval::Field(expr) =>  {
+            AWKLval::Field(expr) => {
                 let f = eval_awkexpr(expr, env).to_float() as usize;
                 env.set_field_n(f, &env.get_field_n(f).unwrap().add(&addval))
             }
@@ -98,7 +98,7 @@ fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) ->
     } else {
         match lval {
             AWKLval::Name(name) => env.set_value(name, &env.get_value(name).add(&addval)),
-            AWKLval::Field(expr) =>  {
+            AWKLval::Field(expr) => {
                 let f = eval_awkexpr(expr, env).to_float() as usize;
                 env.set_field_n(f, &env.get_field_n(f).unwrap().add(&addval))
             }
