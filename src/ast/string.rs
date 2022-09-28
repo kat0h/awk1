@@ -11,35 +11,43 @@ use nom::{
     branch::alt,
     bytes::complete::escaped_transform,
     character::complete::{char, none_of},
-    combinator::value,
+    combinator::{map, opt, value},
     sequence::delimited,
     IResult,
 };
 
 pub fn parse_string(input: &str) -> IResult<&str, AWKStr> {
-    delimited(
-        char('\"'),
-        escaped_transform(
-            none_of("\"\\"),
-            '\\',
-            alt((
-                value('\\', char('\\')),
-                value('\"', char('\"')),
-                // value('\a', char('a')),
-                // value('\b', char('b')),
-                // value('\f', char('f')),
-                value('\n', char('n')),
-                value('\r', char('r')),
-                value('\t', char('t')),
-                // value('\v'. char('v')),
+    map(
+        delimited(
+            char('\"'),
+            opt(escaped_transform(
+                none_of("\"\\"),
+                '\\',
+                alt((
+                    value('\\', char('\\')),
+                    value('\"', char('\"')),
+                    // value('\a', char('a')),
+                    // value('\b', char('b')),
+                    // value('\f', char('f')),
+                    value('\n', char('n')),
+                    value('\r', char('r')),
+                    value('\t', char('t')),
+                    // value('\v'. char('v')),
+                )),
             )),
+            char('\"'),
         ),
-        char('\"'),
+        |string: Option<AWKStr>| match string {
+            Some(s) => s,
+            None => "".to_string(),
+        },
     )(input)
 }
 
 #[test]
 fn test_parse_string() {
+    assert_eq!(Ok(("", "".to_string())), parse_string(r#""""#));
+
     assert_eq!(
         Ok(("", "TEST \n \"THE\" \\ World!!!".to_string())),
         parse_string("\"TEST \\n \\\"THE\\\" \\\\ World!!!\"")
