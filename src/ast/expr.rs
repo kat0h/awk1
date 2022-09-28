@@ -15,7 +15,7 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::char,
-    combinator::map,
+    combinator::{map, not},
     multi::many0,
     sequence::{delimited, tuple},
     IResult,
@@ -182,8 +182,17 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    // ++ --が二文字連続している場合はErr
+    let not2char = |c: char| map(tuple((char(c), not(char(c)))), |(c, _): (char, _)| c);
     let symbol = map(
-        tuple((alt((char('!'), char('+'), char('-'))), wss)),
+        tuple((
+            alt((
+                char('!'),
+                not2char('+'),
+                not2char('-'),
+            )),
+            wss,
+        )),
         |(s, _): (char, _)| s,
     );
 
@@ -319,10 +328,10 @@ fn lval(input: &str) -> IResult<&str, AWKLval> {
 fn test_parse_expr() {
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(
-        all("123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 - a-- - 3) + ++a + -1")
-            .is_ok()
-    );
+    assert!(all(
+        "123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 - a-- - 3) + ++a + -1"
+    )
+    .is_ok());
     assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
     assert_eq!(all("$1"), all("$                        1"));
 
