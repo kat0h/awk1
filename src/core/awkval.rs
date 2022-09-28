@@ -28,6 +28,14 @@ impl AWKVal {
             AWKVal::None => 0.0,
         }
     }
+
+    pub fn is_true(&self) -> bool {
+        match self {
+            AWKVal::Num(n) => n.clone() == 0.0,
+            AWKVal::Str(s) => s.len() != 0,
+            AWKVal::None => false,
+        }
+    }
 }
 
 impl AWKVal {
