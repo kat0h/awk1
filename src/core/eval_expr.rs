@@ -5,7 +5,6 @@
  *   Evaluate AWKExpr
  */
 
-// TODO: LVALを透過的に扱える関数をenv.rsに生やす
 use crate::{ast::def::*, core::env::AWKEnv};
 
 // AWKExpr
@@ -34,20 +33,21 @@ fn eval_binary_operation(
 ) -> AWKVal {
     let left = eval_awkexpr(left, env);
     let right = eval_awkexpr(right, env);
-    return AWKVal::Num(match op {
-        AWKBinaryOperation::Add => left.add(&right).to_float(),
-        AWKBinaryOperation::Sub => left.sub(&right).to_float(),
-        AWKBinaryOperation::Mul => left.mul(&right).to_float(),
+    return match op {
+        AWKBinaryOperation::Add => left.add(&right),
+        AWKBinaryOperation::Sub => left.sub(&right),
+        AWKBinaryOperation::Mul => left.mul(&right),
         AWKBinaryOperation::Div => {
             if right.to_float() == 0.0 {
                 println!("divisition by zero");
                 todo!();
             };
-            left.div(&right).to_float()
+            left.div(&right)
         }
-        AWKBinaryOperation::Mod => left.module(&right).to_float(),
-        AWKBinaryOperation::Pow => left.pow(&right).to_float(),
-    });
+        AWKBinaryOperation::Mod => left.module(&right),
+        AWKBinaryOperation::Pow => left.pow(&right),
+        AWKBinaryOperation::Cat => left.concat(&right),
+    };
 }
 
 fn eval_fieldreference(reference: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal {

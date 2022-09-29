@@ -66,7 +66,7 @@ pub enum AWKExpr {
     UnaryOperation {
         op: AWKUnaryOperation,
         expr: Box<AWKExpr>,
-    }
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -83,13 +83,14 @@ pub enum AWKBinaryOperation {
     Div, // /
     Pow, // ^
     Mod, // %
+    Cat, // string concat
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKUnaryOperation {
-    Not,  // !
-    Plus, // +
-    Minus // -
+    Not,   // !
+    Plus,  // +
+    Minus, // -
 }
 
 #[derive(Debug, PartialEq, Clone)]

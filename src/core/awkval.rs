@@ -67,4 +67,7 @@ impl AWKVal {
     pub fn minus(&self) -> AWKVal {
         AWKVal::Num(self.to_float() * -1.0)
     }
+    pub fn concat(&self, val: &AWKVal) -> AWKVal {
+        AWKVal::Str(self.to_str() + &val.to_str())
+    }
 }
