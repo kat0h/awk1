@@ -47,6 +47,8 @@ fn eval_binary_operation(
         AWKBinaryOperation::Mod => left.module(&right),
         AWKBinaryOperation::Pow => left.pow(&right),
         AWKBinaryOperation::Cat => left.concat(&right),
+        AWKBinaryOperation::And => left.and(&right),
+        AWKBinaryOperation::Or => left.or(&right),
     };
 }
 

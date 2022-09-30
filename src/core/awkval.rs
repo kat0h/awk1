@@ -31,7 +31,7 @@ impl AWKVal {
 
     pub fn is_true(&self) -> bool {
         match self {
-            AWKVal::Num(n) => n.clone() == 0.0,
+            AWKVal::Num(n) => n.clone() == 1.0,
             AWKVal::Str(s) => s.len() != 0,
             AWKVal::None => false,
         }
@@ -69,5 +69,25 @@ impl AWKVal {
     }
     pub fn concat(&self, val: &AWKVal) -> AWKVal {
         AWKVal::Str(self.to_str() + &val.to_str())
+    }
+    pub fn and(&self, val: &AWKVal) -> AWKVal {
+        // 短絡評価
+        if !self.is_true() {
+            return AWKVal::Num(0.0);
+        };
+        if !val.is_true() {
+            return AWKVal::Num(0.0);
+        };
+        return AWKVal::Num(1.0);
+    }
+    pub fn or(&self, val: &AWKVal) -> AWKVal {
+        // 短絡評価
+        if self.is_true() {
+            return AWKVal::Num(1.0);
+        };
+        if val.is_true() {
+            return AWKVal::Num(1.0);
+        };
+        return AWKVal::Num(0.0);
     }
 }

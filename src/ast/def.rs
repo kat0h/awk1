@@ -84,6 +84,8 @@ pub enum AWKBinaryOperation {
     Pow, // ^
     Mod, // %
     Cat, // string concat
+    And, // &&
+    Or,  // ||
 }
 
 #[derive(Debug, PartialEq, Clone)]
