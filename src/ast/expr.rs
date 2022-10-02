@@ -151,14 +151,40 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-/// String concatenation
+// 比較(複数個を繋げることはできません)
+// LessThan,         // <
+// LessEqualThan,    // <=
+// NotEqual,         // !=
+// Equal,            // ==
+// GreaterThan,      // >
+// GreaterEqualThan, // >=
 fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let symbol = delimited(
+        wss,
+        alt((
+            tag("<"),
+            tag("<="),
+            tag("!="),
+            tag("== "),
+            tag(">"),
+            tag(">="),
+        )),
+        wss,
+    );
     alt((
         map(
-            tuple((expr5, wss, expr5)),
-            |(left, _, right): (Box<AWKExpr>, _, Box<AWKExpr>)| {
+            tuple((expr5, symbol, expr5)),
+            |(left, op, right): (Box<AWKExpr>, &str, Box<AWKExpr>)| -> Box<AWKExpr> {
                 Box::new(AWKExpr::BinaryOperation {
-                    op: AWKBinaryOperation::Cat,
+                    op: match op {
+                        "<" => AWKBinaryOperation::LessThan,
+                        "<=" => AWKBinaryOperation::LessEqualThan,
+                        "!=" => AWKBinaryOperation::NotEqual,
+                        "==" => AWKBinaryOperation::Equal,
+                        ">" => AWKBinaryOperation::GreaterThan,
+                        ">=" => AWKBinaryOperation::GreaterEqualThan,
+                        _ => unreachable!(),
+                    },
                     left,
                     right,
                 })
@@ -168,12 +194,29 @@ fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
     ))(input)
 }
 
-/// parse + -
+/// String concatenation
 fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    alt((
+        map(
+            tuple((expr6, wss, expr6)),
+            |(left, _, right): (Box<AWKExpr>, _, Box<AWKExpr>)| {
+                Box::new(AWKExpr::BinaryOperation {
+                    op: AWKBinaryOperation::Cat,
+                    left,
+                    right,
+                })
+            },
+        ),
+        expr6,
+    ))(input)
+}
+
+/// parse + -
+fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let symbol = delimited(wss, alt((char('+'), char('-'))), wss);
 
     map(
-        tuple((expr6, many0(tuple((symbol, expr6))))),
+        tuple((expr7, many0(tuple((symbol, expr7))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             // [1, 2, 3, 4] -> [[[1, 2], 3], 4]
             let mut i = expr;
@@ -202,11 +245,11 @@ fn expr5(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 /// parse * /
-fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr7(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let symbol = delimited(wss, alt((char('*'), char('/'), char('%'))), wss);
 
     map(
-        tuple((expr7, many0(tuple((symbol, expr7))))),
+        tuple((expr8, many0(tuple((symbol, expr8))))),
         |(expr, exprs): (Box<AWKExpr>, Vec<(char, Box<AWKExpr>)>)| -> Box<AWKExpr> {
             let mut i = expr;
             for j in exprs {
@@ -240,7 +283,7 @@ fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
     )(input)
 }
 
-fn expr7(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr8(input: &str) -> IResult<&str, Box<AWKExpr>> {
     // ++ --が二文字連続している場合はErr
     let not2char = |c: char| map(tuple((char(c), not(char(c)))), |(c, _): (char, _)| c);
     let symbol = map(
@@ -250,7 +293,7 @@ fn expr7(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
     alt((
         map(
-            tuple((symbol, expr7)),
+            tuple((symbol, expr8)),
             |(s, r): (char, Box<AWKExpr>)| -> Box<AWKExpr> {
                 Box::new(AWKExpr::UnaryOperation {
                     expr: r,
@@ -263,19 +306,19 @@ fn expr7(input: &str) -> IResult<&str, Box<AWKExpr>> {
                 })
             },
         ),
-        expr8,
+        expr9,
     ))(input)
 }
 
 /// parse ^ 右結合
-fn expr8(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr9(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let symbol = delimited(wss, char('^'), wss);
 
     alt((
         map(
             tuple((
-                expr9,
-                map(tuple((symbol, expr8)), |(_, e): (_, Box<AWKExpr>)| e),
+                expr10,
+                map(tuple((symbol, expr9)), |(_, e): (_, Box<AWKExpr>)| e),
             )),
             |(l, r): (Box<AWKExpr>, Box<AWKExpr>)| {
                 Box::new(AWKExpr::BinaryOperation {
@@ -285,12 +328,12 @@ fn expr8(input: &str) -> IResult<&str, Box<AWKExpr>> {
                 })
             },
         ),
-        expr9,
+        expr10,
     ))(input)
 }
 
 /// pre increment/decrement ++lval --lval
-fn expr9(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr10(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let is_inc = map(
         tuple((alt((tag("++"), tag("--"))), wss)),
         |(symbol, _): (&str, _)| match symbol {
@@ -306,13 +349,13 @@ fn expr9(input: &str) -> IResult<&str, Box<AWKExpr>> {
             lval,
         })
     });
-    alt((incdec, expr10))(input)
+    alt((incdec, expr11))(input)
 }
 
 /// post increment/decrement lval++ lval--
 /// i++ - i みたいなパターン
 // a----a a-----a a-- - -1とか
-fn expr10(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr11(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let is_inc = map(
         tuple((wss, alt((tag("++"), tag("--"))))),
         |(_, symbol): (_, &str)| match symbol {
@@ -328,14 +371,14 @@ fn expr10(input: &str) -> IResult<&str, Box<AWKExpr>> {
             lval,
         })
     });
-    alt((incdec, expr11))(input)
+    alt((incdec, expr12))(input)
 }
 
 /// parse field reference $expr
-fn expr11(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    let field_reference = tuple((char('$'), wss, expr12));
+fn expr12(input: &str) -> IResult<&str, Box<AWKExpr>> {
+    let field_reference = tuple((char('$'), wss, expr13));
     alt((
-        expr12,
+        expr13,
         map(
             field_reference,
             |(_, _, record): (char, _, Box<AWKExpr>)| -> Box<AWKExpr> {
@@ -346,7 +389,7 @@ fn expr11(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 /// grouping (expr)
-fn expr12(input: &str) -> IResult<&str, Box<AWKExpr>> {
+fn expr13(input: &str) -> IResult<&str, Box<AWKExpr>> {
     alt((
         value_or_name,
         delimited(char('('), delimited(wss, expr1, wss), char(')')),
@@ -370,7 +413,7 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 
 fn lval(input: &str) -> IResult<&str, AWKLval> {
     let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
-    let field = map(tuple((char('$'), wss, expr12)), |(_, _, expr)| {
+    let field = map(tuple((char('$'), wss, expr13)), |(_, _, expr)| {
         AWKLval::Field(expr)
     });
     alt((val, field))(input)

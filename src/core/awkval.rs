@@ -17,7 +17,6 @@ impl AWKVal {
             AWKVal::None => "".to_string(),
         }
     }
-
     pub fn to_float(&self) -> AWKFloat {
         match self {
             AWKVal::Num(n) => n.clone(),
@@ -28,7 +27,6 @@ impl AWKVal {
             AWKVal::None => 0.0,
         }
     }
-
     pub fn is_true(&self) -> bool {
         match self {
             AWKVal::Num(n) => n.clone() == 1.0,
@@ -37,6 +35,16 @@ impl AWKVal {
         }
     }
 }
+
+enum CO {
+    LT,  // <
+    LET, // <=
+    NE,  // !=
+    EQ,  // == 
+    GT,  // >
+    GET, // >=
+}
+
 
 impl AWKVal {
     // 多倍長整数演算
@@ -89,5 +97,61 @@ impl AWKVal {
             return AWKVal::Num(1.0);
         };
         return AWKVal::Num(0.0);
+    }
+    // 比較のルール
+    // 両方が数字 -> 数値として比較する
+    // それ以外 -> 文字列に変換して比較する
+    // POSIXの記述は誤りです
+    //
+    fn compbase(&self, val: &AWKVal, op: CO) -> AWKVal {
+        let (left, right) = (self, val);
+        AWKVal::Num(
+            if match (left, right) {
+                (AWKVal::Num(left), AWKVal::Num(right)) => {
+                    match op {
+                        CO::LT => left < right,
+                        CO::LET => left <= right,
+                        CO::NE => left != right,
+                        CO::EQ => left == right,
+                        CO::GT => left > right,
+                        CO::GET => left <= right,
+                    }
+                },
+                (_, _) => {
+                    let (left, right) = (left.to_str(), right.to_str());
+                    match op {
+                        CO::LT => left < right,
+                        CO::LET => left <= right,
+                        CO::NE => left != right,
+                        CO::EQ => left == right,
+                        CO::GT => left > right,
+                        CO::GET => left <= right,
+                    }
+                }
+            } {
+                1.0
+            } else {
+                0.0
+            },
+        )
+    }
+    // <
+    pub fn lessthan(&self, val: &AWKVal) -> AWKVal {
+        self.compbase(val, CO::LT)
+    }
+    pub fn lessequalthan(&self, val: &AWKVal) -> AWKVal {
+        self.compbase(val, CO::LET)
+    }
+    pub fn notequal(&self, val: &AWKVal) -> AWKVal {
+        self.compbase(val, CO::NE)
+    }
+    pub fn equal(&self, val: &AWKVal) -> AWKVal {
+        self.compbase(val, CO::EQ)
+    }
+    pub fn greaterthan(&self, val: &AWKVal) -> AWKVal {
+        self.compbase(val, CO::GT)
+    }
+    pub fn greaterequalthan(&self, val: &AWKVal) -> AWKVal {
+        self.compbase(val, CO::GET)
     }
 }

@@ -49,6 +49,12 @@ fn eval_binary_operation(
         AWKBinaryOperation::Cat => left.concat(&right),
         AWKBinaryOperation::And => left.and(&right),
         AWKBinaryOperation::Or => left.or(&right),
+        AWKBinaryOperation::LessThan => left.lessthan(&right),
+        AWKBinaryOperation::LessEqualThan => left.lessequalthan(&right),
+        AWKBinaryOperation::NotEqual => left.notequal(&right),
+        AWKBinaryOperation::Equal => left.equal(&right),
+        AWKBinaryOperation::GreaterThan => left.greaterthan(&right),
+        AWKBinaryOperation::GreaterEqualThan => left.greaterequalthan(&right),
     };
 }
 

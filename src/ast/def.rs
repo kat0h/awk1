@@ -86,6 +86,12 @@ pub enum AWKBinaryOperation {
     Cat, // string concat
     And, // &&
     Or,  // ||
+    LessThan,         // <
+    LessEqualThan,    // <=
+    NotEqual,         // !=
+    Equal,            // == 
+    GreaterThan,      // >
+    GreaterEqualThan, // >=
 }
 
 #[derive(Debug, PartialEq, Clone)]
