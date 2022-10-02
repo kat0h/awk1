@@ -421,14 +421,92 @@ fn lval(input: &str) -> IResult<&str, AWKLval> {
 
 #[test]
 fn test_parse_expr() {
+    fn s(e: &AWKExpr) -> String {
+        match e {
+            AWKExpr::Value(v) => match v {
+                AWKVal::Num(n) => n.to_string(),
+                AWKVal::Str(s) => format!("{:?}", s.clone()),
+                AWKVal::None => "None".to_string(),
+            },
+            AWKExpr::Name(s) => s.to_string(),
+            AWKExpr::BinaryOperation { op, left, right } => {
+                let op = match op {
+                    AWKBinaryOperation::Add => "+",
+                    AWKBinaryOperation::Sub => "-",
+                    AWKBinaryOperation::Mul => "*",
+                    AWKBinaryOperation::Div => "/",
+                    AWKBinaryOperation::Pow => "^",
+                    AWKBinaryOperation::Mod => "%",
+                    AWKBinaryOperation::Cat => "..",
+                    AWKBinaryOperation::And => "&&",
+                    AWKBinaryOperation::Or => "||",
+                    AWKBinaryOperation::LessThan => "<",
+                    AWKBinaryOperation::LessEqualThan => "<=",
+                    AWKBinaryOperation::NotEqual => "!=",
+                    AWKBinaryOperation::Equal => "==",
+                    AWKBinaryOperation::GreaterThan => ">",
+                    AWKBinaryOperation::GreaterEqualThan => ">=",
+                };
+                format!("({} {} {})", op, &s(&left), &s(&right))
+            }
+            AWKExpr::Field(f) => format!("($ {})", &s(&f)),
+            AWKExpr::Assign { lval, expr } => {
+                let lval = match lval {
+                    AWKLval::Name(s) => s.clone(),
+                    AWKLval::Field(e) => format!("($ {})", s(&e)),
+                };
+                let expr = &s(&expr);
+                format!("(setq {} {})", lval, expr)
+            }
+            AWKExpr::IncDec {
+                is_post,
+                is_inc,
+                lval,
+            } => {
+                let is_post = if *is_post { "post" } else { "pre" };
+                let is_inc = if *is_inc { "++" } else { "--" };
+                let lval = match lval {
+                    AWKLval::Name(s) => s.clone(),
+                    AWKLval::Field(e) => format!("($ {})", s(&e)),
+                };
+                format!("({}{} {})", is_post, is_inc, lval)
+            }
+            AWKExpr::UnaryOperation { op, expr } => {
+                let op = match op {
+                    AWKUnaryOperation::Not => "!",
+                    AWKUnaryOperation::Plus => "+",
+                    AWKUnaryOperation::Minus => "-",
+                };
+                format!("({} {})", op, &s(&expr))
+            }
+        }
+    }
     let mut all = nom::combinator::all_consuming(parse_expr);
 
-    assert!(all(
-        "123 - 444 * ( 555 - 666 ) - 2133 % 1024 + 45 ^ 4 * ( a += 45 - a-- - 3) + ++a + -1"
-    )
-    .is_ok());
-    assert_eq!(all("$(1*2)=\"hoge\""), all("$   ( 1 * 2 ) = \"hoge\""));
-    assert_eq!(all("$1"), all("$                        1"));
+    let testcase = [
+        (r#"(+ 1 2)"#, r#"1+2"#),
+        (r#"(setq ($ (* 1 2)) "hoge")"#, r#"$(1*2)="hoge""#),
+        (r#""hoge\n""#, r#""hoge\n""#),
+        (
+            r#"(- (+ (- (- 123 (* 444 (- 555 666))) (% 12 4)) (pre-- a)) (setq a (+ a 4)))"#,
+            r#"123 - 444 * ( 555 - 666 ) - 12 % 4 + -- a - ( a += 4 )"#,
+        ),
+        (
+            r#"(- (+ (- (- 123 (* 444 (- 555 666))) (% 12 4)) (pre-- a)) (setq a (+ a 4)))"#,
+            r#"123-444*(555-666)-12%4+--a-(a+=4)"#,
+        ),
+        (r#"($ 1)"#, r#"$  1"#),
+        // (r#""#, r#""#),
+    ];
+
+    for testcase in testcase.iter() {
+        let expect = testcase.0;
+        let actual = match all(testcase.1) {
+            Ok(o) => s(&o.1),
+            Err(e) => e.to_string(),
+        };
+        assert_eq!(expect, actual);
+    }
 
     assert!(all(" 12 + 3").is_err());
     assert!(all("12 + 3 ").is_err());

@@ -83,6 +83,7 @@ fn eval_assign(lval: &AWKLval, expr: &Box<AWKExpr>, env: &mut AWKEnv) -> AWKVal 
 }
 
 // TODO: REfactor
+// AWKValに実装を移す必要がありそう
 fn eval_incdec(is_post: bool, is_inc: bool, lval: &AWKLval, env: &mut AWKEnv) -> AWKVal {
     let addval = AWKVal::Num(if is_inc { 1.0 } else { -1.0 });
     if is_post {
