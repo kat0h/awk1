@@ -40,11 +40,10 @@ enum CO {
     LT,  // <
     LET, // <=
     NE,  // !=
-    EQ,  // == 
+    EQ,  // ==
     GT,  // >
     GET, // >=
 }
-
 
 impl AWKVal {
     // 多倍長整数演算
@@ -107,15 +106,13 @@ impl AWKVal {
         let (left, right) = (self, val);
         AWKVal::Num(
             if match (left, right) {
-                (AWKVal::Num(left), AWKVal::Num(right)) => {
-                    match op {
-                        CO::LT => left < right,
-                        CO::LET => left <= right,
-                        CO::NE => left != right,
-                        CO::EQ => left == right,
-                        CO::GT => left > right,
-                        CO::GET => left <= right,
-                    }
+                (AWKVal::Num(left), AWKVal::Num(right)) => match op {
+                    CO::LT => left < right,
+                    CO::LET => left <= right,
+                    CO::NE => left != right,
+                    CO::EQ => left == right,
+                    CO::GT => left > right,
+                    CO::GET => left <= right,
                 },
                 (_, _) => {
                     let (left, right) = (left.to_str(), right.to_str());

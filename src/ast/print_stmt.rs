@@ -40,12 +40,12 @@ fn parse_print(input: &str) -> IResult<&str, AWKPrint> {
 
     let parse_print_arguments = map(
         opt(alt((
+            parse_print_expr_list,
             delimited(
                 char('('),
                 delimited(wss, parse_print_expr_list, wss),
                 char(')'),
             ),
-            parse_print_expr_list,
         ))),
         |expr: Option<Vec<Box<AWKExpr>>>| -> Vec<Box<AWKExpr>> {
             match expr {
@@ -116,6 +116,8 @@ fn test_parse_print() {
     assert!(all(r#"print (123,3
         )"#)
     .is_err());
+
+    assert!(all("print (2+2)>3").is_ok());
 
     // パーサーが余計なスペースを処理していないかをチェック
     assert!(all("print 2 ").is_err());

@@ -162,12 +162,12 @@ fn expr4(input: &str) -> IResult<&str, Box<AWKExpr>> {
     let symbol = delimited(
         wss,
         alt((
-            tag("<"),
             tag("<="),
             tag("!="),
-            tag("== "),
-            tag(">"),
             tag(">="),
+            tag("=="),
+            tag("<"),
+            tag(">"),
         )),
         wss,
     );

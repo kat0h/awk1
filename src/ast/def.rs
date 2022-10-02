@@ -77,19 +77,19 @@ pub enum AWKLval {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AWKBinaryOperation {
-    Add, // +
-    Sub, // -
-    Mul, // *
-    Div, // /
-    Pow, // ^
-    Mod, // %
-    Cat, // string concat
-    And, // &&
-    Or,  // ||
+    Add,              // +
+    Sub,              // -
+    Mul,              // *
+    Div,              // /
+    Pow,              // ^
+    Mod,              // %
+    Cat,              // string concat
+    And,              // &&
+    Or,               // ||
     LessThan,         // <
     LessEqualThan,    // <=
     NotEqual,         // !=
-    Equal,            // == 
+    Equal,            // ==
     GreaterThan,      // >
     GreaterEqualThan, // >=
 }
