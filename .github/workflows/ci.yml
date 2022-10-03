@@ -10,8 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
-
+  check:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +25,7 @@ jobs:
 
     - name: Tests
       run: cargo test --verbose
+
+    - name: Clippy
+      run: cargo clippy -- -D warnings
    
