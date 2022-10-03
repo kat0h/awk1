@@ -4,4 +4,3 @@
  * description:
  *   Utility function
  */
-

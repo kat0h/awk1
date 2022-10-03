@@ -21,8 +21,8 @@ use nom::{
     IResult,
 };
 
-pub fn parse_expr(input: &str) -> IResult<&str, Box<AWKExpr>> {
-    expr1(input)
+pub fn parse_expr(input: &str) -> IResult<&str, AWKExpr> {
+    map(expr1, |expr| *expr)(input)
 }
 
 /// parse assignment expression

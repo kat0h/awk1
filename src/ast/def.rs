@@ -32,7 +32,7 @@ pub enum AWKPattern {
 
 #[derive(Debug, PartialEq)]
 pub enum AWKStat {
-    Expr(Box<AWKExpr>),
+    Expr(AWKExpr),
     Print(AWKPrint),
     Action(Vec<AWKStat>),
 }
@@ -114,5 +114,5 @@ pub type AWKFloat = f64;
 #[derive(Debug, PartialEq)]
 pub struct AWKPrint {
     // 一時的に
-    pub exprlist: Vec<Box<AWKExpr>>,
+    pub exprlist: Vec<AWKExpr>,
 }
