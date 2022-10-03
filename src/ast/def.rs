@@ -23,7 +23,7 @@ pub struct AWKPatternAction {
     pub action: Vec<AWKStat>, // action is vector of statement
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum AWKPattern {
     Always,
     Begin,
@@ -75,7 +75,7 @@ pub enum AWKLval {
     Field(Box<AWKExpr>),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum AWKBinaryOperation {
     Add,              // +
     Sub,              // -
@@ -94,7 +94,7 @@ pub enum AWKBinaryOperation {
     GreaterEqualThan, // >=
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum AWKUnaryOperation {
     Not,   // !
     Plus,  // +

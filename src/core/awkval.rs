@@ -19,8 +19,8 @@ impl AWKVal {
     }
     pub fn to_float(&self) -> AWKFloat {
         match self {
-            AWKVal::Num(n) => n.clone(),
-            AWKVal::Str(s) => match parse_number(&s) {
+            AWKVal::Num(n) => *n,
+            AWKVal::Str(s) => match parse_number(s) {
                 Ok((_, n)) => n,
                 Err(_) => 0.0,
             },
@@ -29,13 +29,14 @@ impl AWKVal {
     }
     pub fn is_true(&self) -> bool {
         match self {
-            AWKVal::Num(n) => n.clone() == 1.0,
-            AWKVal::Str(s) => s.len() != 0,
+            AWKVal::Num(n) => *n == 1.0,
+            AWKVal::Str(s) => !s.is_empty(),
             AWKVal::None => false,
         }
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
 enum CO {
     LT,  // <
     LET, // <=
@@ -85,7 +86,7 @@ impl AWKVal {
         if !val.is_true() {
             return AWKVal::Num(0.0);
         };
-        return AWKVal::Num(1.0);
+        AWKVal::Num(1.0)
     }
     pub fn or(&self, val: &AWKVal) -> AWKVal {
         // 短絡評価
@@ -95,7 +96,7 @@ impl AWKVal {
         if val.is_true() {
             return AWKVal::Num(1.0);
         };
-        return AWKVal::Num(0.0);
+        AWKVal::Num(0.0)
     }
     // 比較のルール
     // 両方が数字 -> 数値として比較する

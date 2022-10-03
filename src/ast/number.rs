@@ -20,7 +20,7 @@ fn parse_e(input: &str) -> IResult<&str, f64> {
     map_res(
         tuple((one_of("eE"), opt(tuple((opt(one_of("+-")), digit1))))),
         |(_, e): (char, Option<(Option<char>, &str)>)| -> Result<f64, ParseIntError> {
-            let (sign, int) = e.unwrap_or_else(|| (None, "0"));
+            let (sign, int) = e.unwrap_or((None, "0"));
             let sign: i64 = if sign.unwrap_or('+') == '+' { 1 } else { -1 };
             let int: i64 = int.parse::<i64>()?;
             Ok((sign * int) as f64)
@@ -83,7 +83,7 @@ pub fn parse_number(input: &str) -> IResult<&str, AWKFloat> {
             tuple((parse_float, opt(parse_e))),
             |(val, e): (f64, Option<f64>)| -> AWKFloat {
                 let e = 10_f64.powf(e.unwrap_or(0.0));
-                return val * e;
+                val * e
             },
         ),
         map(

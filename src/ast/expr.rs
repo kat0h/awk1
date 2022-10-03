@@ -125,7 +125,7 @@ fn expr2(input: &str) -> IResult<&str, Box<AWKExpr>> {
                     right: j.1,
                 });
             }
-            return i;
+            i
         },
     )(input)
 }
@@ -146,7 +146,7 @@ fn expr3(input: &str) -> IResult<&str, Box<AWKExpr>> {
                     right: j.1,
                 });
             }
-            return i;
+            i
         },
     )(input)
 }
@@ -239,7 +239,7 @@ fn expr6(input: &str) -> IResult<&str, Box<AWKExpr>> {
                     _ => unreachable!(),
                 }
             }
-            return i;
+            i
         },
     )(input)
 }
@@ -278,7 +278,7 @@ fn expr7(input: &str) -> IResult<&str, Box<AWKExpr>> {
                     _ => unreachable!(),
                 }
             }
-            return i;
+            i
         },
     )(input)
 }
@@ -412,7 +412,7 @@ fn value(input: &str) -> IResult<&str, Box<AWKExpr>> {
 }
 
 fn lval(input: &str) -> IResult<&str, AWKLval> {
-    let val = map(parse_variable_name_string, |name| AWKLval::Name(name));
+    let val = map(parse_variable_name_string, AWKLval::Name);
     let field = map(tuple((char('$'), wss, expr13)), |(_, _, expr)| {
         AWKLval::Field(expr)
     });
@@ -447,15 +447,15 @@ fn test_parse_expr() {
                     AWKBinaryOperation::GreaterThan => ">",
                     AWKBinaryOperation::GreaterEqualThan => ">=",
                 };
-                format!("({} {} {})", op, &s(&left), &s(&right))
+                format!("({} {} {})", op, &s(left), &s(right))
             }
-            AWKExpr::Field(f) => format!("($ {})", &s(&f)),
+            AWKExpr::Field(f) => format!("($ {})", &s(f)),
             AWKExpr::Assign { lval, expr } => {
                 let lval = match lval {
                     AWKLval::Name(s) => s.clone(),
-                    AWKLval::Field(e) => format!("($ {})", s(&e)),
+                    AWKLval::Field(e) => format!("($ {})", s(e)),
                 };
-                let expr = &s(&expr);
+                let expr = &s(expr);
                 format!("(setq {} {})", lval, expr)
             }
             AWKExpr::IncDec {
@@ -467,7 +467,7 @@ fn test_parse_expr() {
                 let is_inc = if *is_inc { "++" } else { "--" };
                 let lval = match lval {
                     AWKLval::Name(s) => s.clone(),
-                    AWKLval::Field(e) => format!("($ {})", s(&e)),
+                    AWKLval::Field(e) => format!("($ {})", s(e)),
                 };
                 format!("({}{} {})", is_post, is_inc, lval)
             }
@@ -477,7 +477,7 @@ fn test_parse_expr() {
                     AWKUnaryOperation::Plus => "+",
                     AWKUnaryOperation::Minus => "-",
                 };
-                format!("({} {})", op, &s(&expr))
+                format!("({} {})", op, &s(expr))
             }
         }
     }

@@ -46,12 +46,9 @@ pub fn exec_all_begin_pattern(program: &AWKProgram, env: &mut AWKEnv) {
     for i in &program.item_list {
         match i {
             AWKItem::PatternAction(pattern_action) => {
-                match pattern_action.pattern {
-                    AWKPattern::Begin => {
-                        exec_awkaction(&pattern_action.action, env);
-                    }
-                    _ => (),
-                };
+                if let AWKPattern::Begin = pattern_action.pattern {
+                    exec_awkaction(&pattern_action.action, env);
+                }
             }
         };
     }
@@ -62,12 +59,9 @@ pub fn exec_all_end_pattern(program: &AWKProgram, env: &mut AWKEnv) {
     for i in &program.item_list {
         match i {
             AWKItem::PatternAction(pattern_action) => {
-                match pattern_action.pattern {
-                    AWKPattern::End => {
-                        exec_awkaction(&pattern_action.action, env);
-                    }
-                    _ => (),
-                };
+                if let AWKPattern::End = pattern_action.pattern {
+                    exec_awkaction(&pattern_action.action, env);
+                }
             }
         };
     }
@@ -77,7 +71,7 @@ pub fn exec_all_end_pattern(program: &AWKProgram, env: &mut AWKEnv) {
 pub fn exec_awkaction(actions: &Vec<AWKStat>, env: &mut AWKEnv) {
     for statement in actions {
         match statement {
-            AWKStat::Print(awkprint) => exec_awkprint(&awkprint, env),
+            AWKStat::Print(awkprint) => exec_awkprint(awkprint, env),
             AWKStat::Expr(expr) => {
                 eval_awkexpr(expr, env);
             }

@@ -29,7 +29,7 @@ fn mainloop() {
     let parsed_program = ast::program::parse_program(&args[1]);
     // check parse error
     if parsed_program.is_err() || !parsed_program.as_ref().unwrap().0.is_empty() {
-        println!("\x1b[38;5;1m{}\x1b[m", "Parse Err!!!");
+        println!("\x1b[38;5;1mParse Err!!!\x1b[m");
         dbg!(&parsed_program);
         return;
     }

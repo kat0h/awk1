@@ -22,13 +22,10 @@ impl AWKEnv {
         }
     }
     pub fn set_field(&mut self, s: &str) {
-        self.fields = s.trim().split_whitespace().map(|f| f.to_string()).collect();
+        self.fields = s.split_whitespace().map(|f| f.to_string()).collect();
     }
     pub fn set_field_n(&mut self, n: usize, s: &AWKVal) {
-        if n <= 0 {
-            // TODO: Error Handling
-            panic!();
-        };
+        // usizeは<1なのでfieldsは-1の場合でも正しい値を返します これは意図した動作ではありません
         if self.fields.len() < n {
             for _ in 1..=(n - self.fields.len()) {
                 self.fields.push("".to_string());

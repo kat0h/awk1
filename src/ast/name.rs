@@ -20,9 +20,9 @@ use nom::{
 pub fn parse_variable_name_expr(input: &str) -> IResult<&str, AWKExpr> {
     map_res(parse_name, |s: String| -> Result<AWKExpr, _> {
         if !is_awk_reserved_name(&s) {
-            return Ok(AWKExpr::Name(s));
+            Ok(AWKExpr::Name(s))
         } else {
-            return Err(ErrorKind::MapRes);
+            Err(ErrorKind::MapRes)
         }
     })(input)
 }
@@ -32,9 +32,9 @@ pub fn parse_variable_name_expr(input: &str) -> IResult<&str, AWKExpr> {
 pub fn parse_variable_name_string(input: &str) -> IResult<&str, String> {
     map_res(parse_name, |s: String| -> Result<String, _> {
         if !is_awk_reserved_name(&s) {
-            return Ok(s);
+            Ok(s)
         } else {
-            return Err(ErrorKind::MapRes);
+            Err(ErrorKind::MapRes)
         }
     })(input)
 }
@@ -84,6 +84,6 @@ fn test_parse_name() {
 
 #[test]
 fn test_is_awk_reserved_name() {
-    assert_eq!(true, is_awk_reserved_name("BEGIN"));
-    assert_eq!(false, is_awk_reserved_name("myvar"));
+    assert!(is_awk_reserved_name("BEGIN"));
+    assert!(!is_awk_reserved_name("myvar"));
 }

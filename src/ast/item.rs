@@ -54,7 +54,7 @@ fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
         "END" => AWKPattern::End,
         _ => unreachable!(),
     };
-    return Ok((input, tag));
+    Ok((input, tag))
 }
 
 pub fn parse_action(input: &str) -> IResult<&str, Vec<AWKStat>> {
