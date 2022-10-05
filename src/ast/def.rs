@@ -23,11 +23,12 @@ pub struct AWKPatternAction {
     pub action: Vec<AWKStat>, // action is vector of statement
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum AWKPattern {
     Always,
     Begin,
     End,
+    Expr(AWKExpr),
 }
 
 #[derive(Debug, PartialEq)]

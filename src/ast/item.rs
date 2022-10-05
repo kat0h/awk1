@@ -15,36 +15,41 @@ use nom::{
     IResult,
 };
 
-use crate::ast::{
-    def::{AWKItem, AWKPattern, AWKPatternAction, AWKStat},
-    stmt::parse_statement,
-    util::*,
-};
+use crate::ast::{def::*, expr::parse_expr, stmt::parse_statement, util::*};
 
-/*
- * action
- * pattern action
- * normal_pattern TODO
- */
 pub fn parse_item(input: &str) -> IResult<&str, AWKItem> {
     alt((
-        map(parse_action, |action: Vec<AWKStat>| {
+        // Pattern Action
+        map(
+            tuple((
+                alt((parse_special_pattern, parse_pattern)),
+                wss,
+                parse_action,
+            )),
+            |(pattern, _, action)| AWKItem::PatternAction(AWKPatternAction { pattern, action }),
+        ),
+        // Pattern only
+        // print $0
+        map(parse_pattern, |pattern| {
+            AWKItem::PatternAction(AWKPatternAction {
+                pattern,
+                action: vec![AWKStat::Print(AWKPrint {
+                    exprlist: vec![AWKExpr::Field(Box::new(AWKExpr::Value(AWKVal::Num(0.0))))],
+                })],
+            })
+        }),
+        // Action only
+        map(parse_action, |action| {
             AWKItem::PatternAction(AWKPatternAction {
                 pattern: AWKPattern::Always,
                 action,
             })
         }),
-        map(
-            tuple((parse_pattern, wss, parse_action)),
-            |(pattern, _, action): (AWKPattern, _, Vec<AWKStat>)| {
-                AWKItem::PatternAction(AWKPatternAction { pattern, action })
-            },
-        ),
     ))(input)
 }
 
 fn parse_pattern(input: &str) -> IResult<&str, AWKPattern> {
-    parse_special_pattern(input)
+    map(parse_expr, AWKPattern::Expr)(input)
 }
 
 fn parse_special_pattern(input: &str) -> IResult<&str, AWKPattern> {
@@ -98,6 +103,8 @@ fn test_parse_item() {
     // white space -> OK NEWLINE -> NG
     assert!(parse_item("BEGIN {}").is_ok());
     assert!(parse_item("BEGIN \n{}").is_err());
+
+    assert_eq!(parse_item(r#"1"#), parse_item(r#"1{print $0}"#),);
 }
 
 #[test]

@@ -27,10 +27,15 @@ pub fn read_line_and_exec_program(program: &AWKProgram, env: &mut AWKEnv) {
             for i in &program.item_list {
                 match i {
                     AWKItem::PatternAction(pattern_action) => {
-                        match pattern_action.pattern {
+                        match &pattern_action.pattern {
                             AWKPattern::Always => exec_awkaction(&pattern_action.action, env),
                             AWKPattern::Begin => (),
                             AWKPattern::End => (),
+                            AWKPattern::Expr(cond) => {
+                                if eval_awkexpr(cond, env).is_true() {
+                                    exec_awkaction(&pattern_action.action, env)
+                                };
+                            }
                         };
                     }
                 };
