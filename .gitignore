@@ -1,2 +1,8 @@
+.DS_Store
+
 /target
 /sandbox
+sand
+
+lalrpop_test/target
+lalrpop_test/Cargo.lock

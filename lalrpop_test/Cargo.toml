@@ -1,0 +1,11 @@
+[package]
+name = "lalrpop_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lalrpop-util = { version = "0.19.8", features = ["lexer"] }
+regex = "1.7.0"
+
+[build-dependencies]
+lalrpop = "0.19.8"
