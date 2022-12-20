@@ -1,24 +1,44 @@
 use std::str::FromStr;
+use crate::ast::{Expr, Opcode};
 
 grammar;
 
-pub Expr: i32 = {
-    <l:Expr> "+" <r:Factor> => l + r,
-    <l:Expr> "-" <r:Factor> => l - r,
-    Factor,
+pub Parser: Box<Expr> = {
+  Expr,
 };
 
-Factor: i32 = {
-    <l:Factor> "*" <r:Term> => l * r,
-    <l:Factor> "/" <r:Term> => l / r,
-    Term,
+Expr: Box<Expr> = {
+    #[precedence(level="0")]
+    Atom,
+
+    // * /
+    #[precedence(level="1")]
+    #[assoc(side="left")]
+    <l:Expr> <o:Op2> <r:Expr> => Box::new(Expr::Op(l, o, r)),
+
+    // + -
+    #[precedence(level="2")]
+    #[assoc(side="left")]
+    <l:Expr> <o:Op1> <r:Expr> => Box::new(Expr::Op(l, o, r)),
+
 };
 
-Term: i32 = {
-    Num,
-    "(" <Expr> ")",
+Atom: Box<Expr> = {
+  <n:Num> => Box::new(Expr::Number(n)),
+  "(" <e:Expr> ")" => e,
 };
 
 Num: i32 = {
     r"[0-9]+" => i32::from_str(<>).unwrap()
 };
+
+Op1: Opcode = {
+    "+" => Opcode::Add,
+    "-" => Opcode::Sub
+};
+
+Op2: Opcode = {
+    "*" => Opcode::Mul,
+    "/" => Opcode::Div
+};
+
