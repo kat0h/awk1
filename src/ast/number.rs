@@ -46,7 +46,7 @@ fn parse_float(input: &str) -> IResult<&str, f64> {
             Option<&str>,
         )|
          -> Result<f64, ParseFloatError> {
-            if int == None && frac == None {
+            if int.is_none() && frac.is_none() {
                 "".parse::<f64>()?;
             }
             let sign: f64 = match sign.unwrap_or('+') {

@@ -63,7 +63,7 @@ fn eval_fieldreference(reference: &AWKExpr, env: &mut AWKEnv) -> AWKVal {
     // これは意図した動作ではない
     let n = eval_awkexpr(reference, env).to_float() as usize;
     // TODO: handle Err
-    env.get_field_n(n as usize).unwrap()
+    env.get_field_n(n).unwrap()
 }
 
 fn eval_awkname(name: &str, env: &mut AWKEnv) -> AWKVal {
