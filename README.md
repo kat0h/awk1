@@ -1,4 +1,4 @@
-# AWK(作りかけ)
+# AWK
 ![CI Status](https://github.com/kat0h/rusty_awk/actions/workflows/ci.yml/badge.svg)
 
 POSIXで規定されたAWKの実装です。  
